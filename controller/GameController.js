@@ -1,4 +1,3 @@
-const { use } = require("react");
 const Games = require("../models/GameModel"); // on appelle le modèle
 
 // Ajout d'un jeu
@@ -29,7 +28,7 @@ exports.getGameById = (req, res, next) => {
 };
 
 exports.updateGame = (req, res, next) => {
-  const id = req.params.id;
+  const id = req.params.id_games;
   const updates = req.body || {};
 
   Games.findByIdAndUpdate(id, updates, {

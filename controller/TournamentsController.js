@@ -9,7 +9,7 @@ exports.createTournament = (req, res, next) => {
   tournament
     .save() //on enregistre dans la BDD
     .then(() => {
-      res.status(201).json({ message: "Ajout du jeu enregistré !" });
+      res.status(201).json({ message: "Ajout du tournoi enregistré !" });
     })
     .catch((error) => {
       res.status(400).json({ error });

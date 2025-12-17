@@ -13,6 +13,10 @@ const tournamentSchema = mongoose.Schema({
     ref: "Games", // la référence au modèle Games
     required: true,
   },
+  registred_teams: [{type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+    required: true
+  }]
 });
 
 module.exports = mongoose.model("Tournaments", tournamentSchema);

@@ -22,7 +22,11 @@ const UserSchema = mongoose.Schema({
   specialty: { type: [String] }, // que pour les jurés
   //ticket_type (pour les spectateurs) - String ?
   //Ticket_id (référence vers Ticket) pour les spectateurs
-  //team_id (référence vers Team) (pour les joueurs)
+  team_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Teams",
+    required: true,
+  },
 });
 UserSchema.plugin(uniqueValidator);
 

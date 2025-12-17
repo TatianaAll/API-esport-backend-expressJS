@@ -52,4 +52,8 @@ app.use('/tournaments', tournamentsRoutes);
 const usersRoutes = require('./routes/usersRoute');
 app.use('/users', usersRoutes);
 
+const teamsRoutes = require('./routes/teamsRoute');
+app.use('/teams', teamsRoutes);
+
+
 module.exports = app;

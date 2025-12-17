@@ -1,6 +1,8 @@
 const express = require("express");
+const auth = require("../middleware/auth.js");
 const router = express.Router();
 const GameController = require("../controller/GameController");
+
 
 router.get("/", GameController.getAllGames);
 router.get("/:id_games", GameController.getGameById);

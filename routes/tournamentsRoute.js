@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const TournamentsController = require("../controller/TournamentsController");
-const auth = require("./../middlewares/auth.js");
+const auth = require("../middleware/auth.js");
 
 router.get("/", TournamentsController.getAllTournaments);
 router.get("/:tournament_id", TournamentsController.getTournamentById);

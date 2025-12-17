@@ -42,8 +42,10 @@ app.use((req, res, next) => {
   next();
 });
 
-//On doit appeler le router des logements
+//On doit appeler les routers vers les différents controllers
 const gamesRoutes = require('./routes/gamesRoute');
 app.use('/games', gamesRoutes);
+const tournamentsRoutes = require('./routes/tournamentsRoute');
+app.use('/tournaments', tournamentsRoutes);
 
 module.exports = app;

@@ -45,7 +45,11 @@ app.use((req, res, next) => {
 //On doit appeler les routers vers les différents controllers
 const gamesRoutes = require('./routes/gamesRoute');
 app.use('/games', gamesRoutes);
+
 const tournamentsRoutes = require('./routes/tournamentsRoute');
 app.use('/tournaments', tournamentsRoutes);
+
+const usersRoutes = require('./routes/usersRoute');
+app.use('/users', usersRoutes);
 
 module.exports = app;

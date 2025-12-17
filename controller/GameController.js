@@ -27,6 +27,12 @@ exports.getGameById = (req, res, next) => {
     .catch((error) => res.status(404).json({ error })); // on utilise la méthode findOne de mongoose pour récupérer un seul logement en fonction de son id;
 };
 
+exports.getGameByName = (req, res, next) => {
+  Games.findOne({ name: req.params.name })
+    .then((games) => res.status(200).json(games))
+    .catch((error) => res.status(404).json({ error })); // on utilise la méthode findOne de mongoose pour récupérer un seul logement en fonction de son id;
+};
+
 exports.updateGame = (req, res, next) => {
   const id = req.params.id_games;
   const updates = req.body || {};

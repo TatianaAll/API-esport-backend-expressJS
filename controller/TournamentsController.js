@@ -43,6 +43,34 @@ exports.getTeamsInTournament = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
+exports.getPlayersInTeam = (req, res, next) => {
+  Tournaments.findOne({ _id: req.params.tournament_id }) // find the tournament
+    .populate({
+      path: "registered_teams.team", // populate the team field in registered_teams
+      populate: { path: "teammates" },
+    })
+    .then((tournament) => {
+      if (!tournament) {
+        return res.status(404).json({ message: "Tournoi non trouvé" });
+      }
+
+      // Search the team in the registered_teams array
+      const entry = tournament.registered_teams.find(
+        (registredTeamFound) => registredTeamFound.team._id.toString() === req.params.team_id
+      ); // team_id from the URL params
+
+      if (!entry) { // If the team is not found
+        return res
+          .status(404)
+          .json({ message: "Équipe non trouvée dans ce tournoi" });
+      }
+
+      // Return the teammates of the found team
+      res.status(200).json(entry.team.teammates);
+    })
+    .catch((error) => res.status(400).json({ error: error.message }));
+};
+
 // UPDATE
 exports.updateTournament = (req, res, next) => {
   const id = req.params.tournament_id;

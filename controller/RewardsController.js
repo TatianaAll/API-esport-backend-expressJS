@@ -24,3 +24,13 @@ exports.getRewardsInTournament = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
+// Get all rewards for a specific team in a tournament
+exports.getRewardsInTeam = (req, res, next) => {
+  Rewards.find({
+    tournament: req.params.tournament_id,
+    team: req.params.team_id,
+  })
+    .then((rewards) => res.status(200).json(rewards))
+    .catch((error) => res.status(400).json({ error }));
+};
+

@@ -13,11 +13,13 @@ router.put("/:tournament_id", auth, TournamentsController.updateTournament);
 router.delete("/:tournament_id", auth, TournamentsController.deleteTournament);
 
 router.get("/:tournament_id/teams", TournamentsController.getTeamsInTournament);
+router.get("/:tournament_id/teams/:team_id", TournamentsController.getPlayersInTeam);
+
 router.get("/:tournament_id/rewards", RewardsController.getRewardsInTournament);
 router.get("/:tournament_id/teams/:team_id/rewards", RewardsController.getRewardsInTeam);
 // /tournaments/{id}/players
 // /tournaments/{id}/jury
-// /tournaments/{id}/teams/{id_team}/players	X	Voir une équipe dans un tournoi
+
 // /tournaments/{id}/teams/{id_team}/players	Yes owner	Ajouter un teammate
 // /tournaments/{id}/teams/{id_team}/players		
 

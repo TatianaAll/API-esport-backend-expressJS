@@ -26,6 +26,20 @@ const tournamentSchema = mongoose.Schema({
         default: Date.now,
       },
     },
+  ],
+  registred_juries: [
+    {
+      jury: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+        required: true,
+      },
+      inscription_date: {
+        type: Date,
+        required: true,
+        default: Date.now,
+      },
+    },
   ]
 });
 

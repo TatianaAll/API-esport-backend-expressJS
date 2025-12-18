@@ -9,7 +9,6 @@ router.get("/", TournamentsController.getAllTournaments);
 router.get("/:tournament_id", TournamentsController.getTournamentById);
 router.post("/", TournamentsController.createTournament);
 router.patch("/:tournament_id", auth, TournamentsController.updateTournament);
-router.put("/:tournament_id", auth, TournamentsController.updateTournament);
 router.delete("/:tournament_id", auth, TournamentsController.deleteTournament);
 // Teams in a tournament
 router.get("/:tournament_id/teams", TournamentsController.getTeamsInTournament);

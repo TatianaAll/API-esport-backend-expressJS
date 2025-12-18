@@ -6,14 +6,52 @@ exports.createTournament = (req, res, next) => {
   const tournament = new Tournaments({
     ...req.body, //read the body
   });
-  tournament
-    .save() // save in DB
-    .then(() => {
-      res.status(201).json({ message: "Ajout du tournoi enregistré !" });
-    })
-    .catch((error) => {
-      res.status(400).json({ error });
+  // Checking of the logic of dates
+  if (req.body.start_date >= req.body.end_date) {
+    return res.status(400).json({
+      message: "La date de début doit être antérieure à la date de fin.",
     });
+  }
+  if (new Date(req.body.start_date) < new Date()) {
+    return res
+      .status(400)
+      .json({ message: "La date de début doit être dans le futur." });
+  }
+
+  // Check the validity of juries members
+  if (req.body.jury && req.body.jury.length > 0) {
+    Users.find({ _id: { $in: req.body.jury } })
+      .then((users) => {
+        const invalidJury = users.find((user) => !user.role.includes("jury"));
+
+        if (invalidJury) {
+          return res.status(400).json({
+            message: `L'utilisateur ${invalidJury._id} n'a pas le rôle jury`,
+          });
+        }
+
+        // Green flags only ==> save
+        tournament
+          .save()
+          .then(() => {
+            res.status(201).json({ message: "Ajout du tournoi enregistré !" });
+          })
+          .catch((error) => {
+            res.status(400).json({ error });
+          });
+      })
+      .catch((error) => res.status(400).json({ error }));
+  } else {
+    // No jury provided ==> save directly
+    tournament
+      .save()
+      .then(() => {
+        res.status(201).json({ message: "Ajout du tournoi enregistré !" });
+      })
+      .catch((error) => {
+        res.status(400).json({ error });
+      });
+  }
 };
 
 // READ
@@ -56,10 +94,12 @@ exports.getPlayersInTeam = (req, res, next) => {
 
       // Search the team in the registered_teams array
       const entry = tournament.registered_teams.find(
-        (registredTeamFound) => registredTeamFound.team._id.toString() === req.params.team_id
+        (registredTeamFound) =>
+          registredTeamFound.team._id.toString() === req.params.team_id
       ); // team_id from the URL params
 
-      if (!entry) { // If the team is not found
+      if (!entry) {
+        // If the team is not found
         return res
           .status(404)
           .json({ message: "Équipe non trouvée dans ce tournoi" });
@@ -73,20 +113,51 @@ exports.getPlayersInTeam = (req, res, next) => {
 
 // UPDATE
 exports.updateTournament = (req, res, next) => {
-  const id = req.params.tournament_id;
-  const updates = req.body || {};
+  // Check dates ONLY if modified
+  if (req.body.start_date && req.body.end_date) {
+    if (req.body.start_date >= req.body.end_date) {
+      return res.status(400).json({
+        message: "La date de début doit être antérieure à la date de fin.",
+      });
+    }
+  }
 
-  Tournaments.findByIdAndUpdate(id, updates, {
-    new: true, // return the modified document
-    runValidators: true, // apply the validators of the schema
-    useFindAndModify: false,
-  })
-    .then((updated) => {
-      if (!updated)
-        return res.status(404).json({ message: "Tournoi non trouvé" });
-      res.status(200).json(updated);
-    })
-    .catch((error) => res.status(400).json({ error }));
+  if (req.body.start_date) {
+    if (new Date(req.body.start_date) < new Date()) {
+      return res.status(400).json({
+        message: "La date de début doit être dans le futur.",
+      });
+    }
+  }
+
+  // Check jury if modified
+  if (req.body.jury && req.body.jury.length > 0) {
+    Users.find({ _id: { $in: req.body.jury } })
+      .then((users) => {
+        const invalidJury = users.find((user) => !user.role.includes("jury"));
+
+        if (invalidJury) {
+          return res.status(400).json({
+            message: `L'utilisateur ${invalidJury._id} n'a pas le rôle jury`,
+          });
+        }
+
+        // OK → update
+        Tournaments.updateOne({ _id: req.params.id }, { ...req.body })
+          .then(() => {
+            res.status(200).json({ message: "Tournoi mis à jour !" });
+          })
+          .catch((error) => res.status(400).json({ error }));
+      })
+      .catch((error) => res.status(400).json({ error }));
+  } else {
+    // No jury provided or empty ==> update directly
+    Tournaments.updateOne({ _id: req.params.id }, { ...req.body })
+      .then(() => {
+        res.status(200).json({ message: "Tournoi mis à jour !" });
+      })
+      .catch((error) => res.status(400).json({ error }));
+  }
 };
 
 // DELETE

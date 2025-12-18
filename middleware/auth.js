@@ -19,6 +19,7 @@ module.exports = (req, res, next) => {
       // on va donc créer un objet ici auth avec comme info l'id
       req.auth = {
         userId: userId,
+        role: decodedToken.role,
       };
       // Si tout va bien, on passe au code suivant avec next
       next();

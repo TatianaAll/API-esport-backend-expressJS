@@ -3,6 +3,12 @@ require('dotenv').config();
 const http = require('http');
 const app = require('./app');
 
+// Pour la documentation API avec Swagger
+const express = require("express"),
+  bodyParser = require("body-parser"),
+  swaggerJsdoc = require("swagger-jsdoc"),
+  swaggerUi = require("swagger-ui-express");
+
 // Ajout du port normalisé
 const normalizePort = val => {
   const port = parseInt(val, 10);
@@ -42,4 +48,41 @@ server.on('listening', () => {
   console.log(`Listening on ${bind}`);
 });
 
+// Set la documentation :
+const options = {
+  definition: {
+    openapi: "3.1.0",
+    info: {
+      title: "LogRocket Express API with Swagger",
+      version: "0.1.0",
+      description:
+        "API for managing e-sport tournaments",
+      license: {
+        name: "MIT",
+        url: "https://spdx.org/licenses/MIT.html",
+      },
+      contact: {
+        name: "LogRocket",
+        url: "https://logrocket.com",
+        email: "info@email.com",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:3001",
+      },
+    ],
+  },
+  apis: ["./routes/*.js"],
+};
+
+const specs = swaggerJsdoc(options);
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, { explorer: true })
+);
+
 server.listen(port);
+// Lancement du server avec nodemon
+

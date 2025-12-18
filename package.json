@@ -15,6 +15,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.0.1",
+    "swagger-jsdoc": "^6.2.8",
     "swagger-json": "^2.0.0",
     "swagger-ui-express": "^5.0.1"
   }

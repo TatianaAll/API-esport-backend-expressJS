@@ -4,6 +4,7 @@ const UserSchema = mongoose.Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  avatar: { type: String },
   role: {
     type: [String],
     enum: ["spectator", "jury", "player", "admin"],
@@ -23,7 +24,6 @@ const UserSchema = mongoose.Schema({
   team_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Teams",
-    required: true,
   },
 });
 

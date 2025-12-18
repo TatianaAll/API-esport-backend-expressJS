@@ -1,13 +1,13 @@
 const Tournaments = require("../models/TournamentModel"); // on appelle le modèle
 
 // CREATE
-// Création d'un nouveau tournoi
+// Create new tournament
 exports.createTournament = (req, res, next) => {
   const tournament = new Tournaments({
-    ...req.body, //on décompose le body
+    ...req.body, //read the body
   });
   tournament
-    .save() //on enregistre dans la BDD
+    .save() // save in DB
     .then(() => {
       res.status(201).json({ message: "Ajout du tournoi enregistré !" });
     })
@@ -17,17 +17,30 @@ exports.createTournament = (req, res, next) => {
 };
 
 // READ
-// Voir tous les tournois organisés
+// All tournaments
 exports.getAllTournaments = (req, res, next) => {
   Tournaments.find()
     .then((tournaments) => res.status(200).json(tournaments))
-    .catch((error) => res.status(400).json({ error })); // on utilise la méthode find de mongoose pour récupérer tous les logements
+    .catch((error) => res.status(400).json({ error })); // find() to get all documents in the collection
 };
-// Voir 1 tournois selon son id
+// See a specific tournament by id
 exports.getTournamentById = (req, res, next) => {
   Tournaments.findOne({ _id: req.params.tournament_id })
     .then((tournaments) => res.status(200).json(tournaments))
-    .catch((error) => res.status(404).json({ error })); // on utilise la méthode findOne de mongoose pour récupérer un seul logement en fonction de son id;
+    .catch((error) => res.status(404).json({ error })); // findOne() to get a specific document with the id
+};
+
+// Get all the teams registrered in a specific tournament
+exports.getTeamsInTournament = (req, res, next) => {
+  Tournaments.findOne({ _id: req.params.tournament_id })
+    .populate("registred_teams") // field name in TournamentModel
+    .then((tournament) => {
+      if (!tournament) {
+        return res.status(404).json({ message: "Tournoi non trouvé" });
+      }
+      res.status(200).json(tournament.registred_teams);
+    })
+    .catch((error) => res.status(400).json({ error }));
 };
 
 // UPDATE
@@ -36,8 +49,8 @@ exports.updateTournament = (req, res, next) => {
   const updates = req.body || {};
 
   Tournaments.findByIdAndUpdate(id, updates, {
-    new: true, // retourne le document mis à jour
-    runValidators: true, // applique les validators du schéma
+    new: true, // return the modified document
+    runValidators: true, // apply the validators of the schema
     useFindAndModify: false,
   })
     .then((updated) => {

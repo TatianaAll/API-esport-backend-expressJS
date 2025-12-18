@@ -55,5 +55,8 @@ app.use('/users', usersRoutes);
 const teamsRoutes = require('./routes/teamsRoute');
 app.use('/teams', teamsRoutes);
 
+const rewardsRoutes = require('./routes/rewardsRoute');
+app.use('/rewards', rewardsRoutes);
+
 
 module.exports = app;

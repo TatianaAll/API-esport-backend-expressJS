@@ -12,7 +12,7 @@ module.exports = (req, res, next) => {
     } else {
       // On split le token car il est composé de Bearer avant
       const token = req.headers.authorization.split(" ")[1];
-      const decodedToken = jwt.verify(token, "RANDOM_TOKEN_SECRET");
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
       const userId = decodedToken.userId;
 
       // l'objet req/request est transmis aux routes qui vont être appelées

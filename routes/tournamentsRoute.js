@@ -9,9 +9,12 @@ router.post("/", TournamentsController.createTournament);
 router.patch("/:tournament_id", auth, TournamentsController.updateTournament);
 router.put("/:tournament_id", auth, TournamentsController.updateTournament);
 router.delete("/:tournament_id", auth, TournamentsController.deleteTournament);
-// /tournaments/{id}/teams
+// router.get("/:tournament_id/teams", TournamentsController.getTeamsInTournament)
 // /tournaments/{id}/rewards
 // /tournaments/{id}/players
 // /tournaments/{id}/jury
+// /tournaments/{id}/teams/{id_team}/players	X	Voir une équipe dans un tournoi
+// /tournaments/{id}/teams/{id_team}/players	Yes owner	Ajouter un teammate
+// /tournaments/{id}/teams/{id_team}/players		
 
 module.exports = router;

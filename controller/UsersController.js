@@ -5,18 +5,24 @@ const jwt = require("jsonwebtoken");
 // CREATE
 // Création d'un nouvel utilisateur
 exports.signupNewUser = (req, res, next) => {
-  // gestion du cryptage du password
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
       const user = new Users({
-        ...req.body, //on décompose le body
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         email: req.body.email,
-        role: req.body.role, // ou status selon ton modèle
+        role: req.body.role || ["spectator"],
         password: hash,
+        favorite_game: req.body.favorite_game,
+        team_role: req.body.team_role,
+        year_joining_team: req.body.year_joining_team,
+        nationality: req.body.nationality,
+        specialty: req.body.specialty,
+        team_id: req.body.team_id,
+        avatar: req.file ? req.file.path : undefined, // multer avatar upload
       });
+
       user
         .save()
         .then(() => res.status(201).json({ message: "Utilisateur créé !" }))
@@ -45,9 +51,13 @@ exports.loginUser = (req, res, next) => {
             } else {
               res.status(200).json({
                 userId: user._id,
-                token: jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
-                  expiresIn: "24h",
-                }),
+                token: jwt.sign(
+                  { userId: user._id, role: user.role },
+                  process.env.JWT_SECRET,
+                  {
+                    expiresIn: "24h",
+                  }
+                ),
               });
             }
           })
@@ -65,6 +75,10 @@ exports.updateUser = (req, res, next) => {
   // contrôle d'autorisation : le user peux modif son profil (uniquement)
   if (!req.auth || req.auth.userId !== id) {
     return res.status(403).json({ message: "Non autorisé" });
+  }
+  // Handle avatar upload
+  if (req.file) {
+    req.body.avatar = req.file.path;
   }
 
   // Si on veut permettre la mise à jour du mot de passe : le hasher d'abord

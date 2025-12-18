@@ -3,10 +3,20 @@ const router = express.Router();
 const UsersController = require("../controller/UsersController");
 const auth = require("../middleware/auth.js");
 
-router.post("/signup", UsersController.signupNewUser);
+router.post(
+  "/signup",
+  upload.single('avatar'), // same name as in user Controller
+  UsersController.signupNewUser
+);
+
 router.post("/login", UsersController.loginUser);
-router.put("/:id", auth, UsersController.updateUser);
-router.patch("/:id", auth, UsersController.updateUser);
+router.patch(
+  "/:id",
+  auth,
+  upload.single('avatar'), // update avatar
+  UsersController.updateUser
+);
+
 router.delete("/:id", auth, UsersController.deleteUser);
 
 module.exports = router;

@@ -19,7 +19,6 @@ const UserSchema = mongoose.Schema({
   year_joining_team: { type: Date }, // que pour les joueurs
   nationality: { type: String },
   specialty: { type: [String] }, // que pour les jurés
-  //ticket_type (pour les spectateurs) - String ?
   //Ticket_id (référence vers Ticket) pour les spectateurs
   team_id: {
     type: mongoose.Schema.Types.ObjectId,

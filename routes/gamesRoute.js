@@ -3,13 +3,18 @@ const auth = require("../middleware/auth.js");
 const router = express.Router();
 const GameController = require("../controller/GameController");
 
+// Classic CRUD routes
 router.get("/", GameController.getAllGames);
 router.get("/:id_games", GameController.getGameById);
 router.post("/", auth, GameController.createGame);
 router.delete("/:id_games", auth, GameController.deleteGameById);
 router.patch("/:id_games", auth, GameController.updateGame);
 router.put("/:id_games", auth, GameController.updateGame);
+
+// Get game by name
 router.get("/name/:name", GameController.getGameByName);
+// Get tournaments for a game
+router.get("/:id_games/tournaments", GameController.getTournamentsForGame);
 
 module.exports = router;
 /**

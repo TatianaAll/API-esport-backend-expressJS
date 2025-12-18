@@ -13,10 +13,20 @@ const tournamentSchema = mongoose.Schema({
     ref: "Games", // la référence au modèle Games
     required: true,
   },
-  registred_teams: [{type: mongoose.Schema.Types.ObjectId,
-    ref: "Teams",
-    required: true
-  }]
+  registered_teams: [
+    {
+      team: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Teams",
+        required: true,
+      },
+      inscription_date: {
+        type: Date,
+        required: true,
+        default: Date.now,
+      },
+    },
+  ]
 });
 
 module.exports = mongoose.model("Tournaments", tournamentSchema);

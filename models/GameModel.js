@@ -2,9 +2,7 @@ const mongoose = require("mongoose");
 
 const gameSchema = mongoose.Schema({
   name: { type: String, required: true },
-  release_date: {
-    type: Date,
-  },
+  release_date: { type: Date },
   genres: {
     type: [String],
     required: true,

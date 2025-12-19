@@ -10,7 +10,7 @@ const tournamentSchema = mongoose.Schema({
   status: { type: String, required: true },
   specialized_game: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Games", // la référence au modèle Games
+    ref: "Games", // ref to the game model
     required: true,
   },
   registered_teams: [
@@ -20,11 +20,7 @@ const tournamentSchema = mongoose.Schema({
         ref: "Teams",
         required: true,
       },
-      inscription_date: {
-        type: Date,
-        required: true,
-        default: Date.now,
-      },
+      inscription_date: { type: Date, required: true, default: Date.now },
     },
   ],
   registred_juries: [
@@ -34,13 +30,9 @@ const tournamentSchema = mongoose.Schema({
         ref: "Users",
         required: true,
       },
-      inscription_date: {
-        type: Date,
-        required: true,
-        default: Date.now,
-      },
+      inscription_date: { type: Date, required: true, default: Date.now },
     },
-  ]
+  ],
 });
 
 module.exports = mongoose.model("Tournaments", tournamentSchema);

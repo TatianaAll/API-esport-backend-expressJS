@@ -7,7 +7,7 @@ const auth = require("../middleware/auth.js");
 // Classic CRUD routes
 router.get("/", TournamentsController.getAllTournaments);
 router.get("/:tournament_id", TournamentsController.getTournamentById);
-router.post("/", TournamentsController.createTournament);
+router.post("/", auth, TournamentsController.createTournament);
 router.patch("/:tournament_id", auth, TournamentsController.updateTournament);
 router.delete("/:tournament_id", auth, TournamentsController.deleteTournament);
 // Teams in a tournament

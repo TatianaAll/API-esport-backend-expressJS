@@ -1,4 +1,4 @@
-const Tournaments = require("../models/TournamentModel"); // on appelle le modèle
+const Tournaments = require("../models/TournamentModel");
 
 // CREATE
 // Create new tournament

@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 // CREATE
-// Création d'un nouvel utilisateur
+// Create new user for register (signup)
 exports.signupNewUser = (req, res, next) => {
   bcrypt
     .hash(req.body.password, 10)
@@ -67,12 +67,12 @@ exports.loginUser = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-// UPDATE (PUT/PATCH) — seul le user peut modifier son profil
+// UPDATE (PUT/PATCH) — only by the user himself
 exports.updateUser = (req, res, next) => {
   const id = req.params.id;
   const updates = { ...(req.body || {}) };
 
-  // contrôle d'autorisation : le user peux modif son profil (uniquement)
+  // Control: only the user can update his profile
   if (!req.auth || req.auth.userId !== id) {
     return res.status(403).json({ message: "Non autorisé" });
   }
@@ -81,7 +81,7 @@ exports.updateUser = (req, res, next) => {
     req.body.avatar = req.file.path;
   }
 
-  // Si on veut permettre la mise à jour du mot de passe : le hasher d'abord
+  // For the password we need to hash it again
   if (updates.password) {
     const plain = updates.password;
     return bcrypt
@@ -110,11 +110,11 @@ exports.updateUser = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
-// DELETE user (protégé)
+// DELETE user (protected))
 exports.deleteUser = (req, res, next) => {
   const id = req.params.id;
-
-  // Contrôle d'autorisation basique (seul le user peut se supprimer — adapter pour admin)
+  
+  // Control: only the user can delete his profile
   if (!req.auth || req.auth.userId !== id) {
     return res.status(403).json({ message: "Non autorisé" });
   }

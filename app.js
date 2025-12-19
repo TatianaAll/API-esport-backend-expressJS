@@ -42,7 +42,7 @@ app.use((req, res, next) => {
   next();
 });
 
-//On doit appeler les routers vers les différents controllers
+// Redirection thanks to the routes files
 const gamesRoutes = require('./routes/gamesRoute');
 app.use('/games', gamesRoutes);
 

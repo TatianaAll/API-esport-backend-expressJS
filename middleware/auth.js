@@ -13,12 +13,11 @@ module.exports = (req, res, next) => {
       // On split le token car il est composé de Bearer avant
       const token = req.headers.authorization.split(" ")[1];
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-      const userId = decodedToken.userId;
 
       // l'objet req/request est transmis aux routes qui vont être appelées
       // on va donc créer un objet ici auth avec comme info l'id
       req.auth = {
-        userId: userId,
+        userId: decodedToken.userId,
         role: decodedToken.role,
       };
       // Si tout va bien, on passe au code suivant avec next

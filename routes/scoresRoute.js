@@ -5,7 +5,7 @@ const ScoresController = require("../controller/ScoresController");
 
 // Classic CRUD routes
 router.get("/", ScoresController.getAllScores);
-router.post("/", auth, ScoresController.createScore);
+// router.post("/", auth, ScoresController.createScore);
 router.patch("/:id", auth, ScoresController.updateScore);
 // Get all scores in a tournament
 router.get("/:tournament_id", ScoresController.getScoresInTournament);

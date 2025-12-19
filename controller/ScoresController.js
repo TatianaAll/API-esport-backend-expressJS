@@ -1,4 +1,5 @@
 const Scores = require("../models/NotationModel");
+const Tournaments = require("../models/TournamentModel");
 
 // Get all scores
 exports.getAllScores = (req, res, next) => {
@@ -30,22 +31,36 @@ exports.getScoresForPlayerInTournament = (req, res, next) => {
 
 // CREATE
 exports.createScore = (req, res, next) => {
-  const newScore = new Scores ({
-    ...req.body, //read the body
-  });
-  if (req.auth && req.auth.role_id.includes("jury")) {
-    newScore
-      .save() //save in DB
-      .then(() => {
-        res.status(201).json({ message: "Nouveau score enregistré !" });
-      })
-      .catch((error) => {
-        res.status(400).json({ error });
-      }); 
-  } else {
-    res.status(403).json({ message: "Accès refusé : rôle de jury requis." });
+  // Check the role of the authenticated user
+  if (!req.auth || !req.auth.role.includes("jury")) {
+    return res.status(403).json({ message: "Accès refusé : rôle de jury requis." });
   }
+
+  // Check the existence of the tournament
+  Tournaments.findOne({ _id: req.params.tournament_id })
+    .then((tournament) => {
+      if (!tournament) {
+        return res.status(404).json({ message: "Tournoi introuvable." });
+      }
+
+      // Create the new score
+      const newScore = new Scores({
+        ...req.body,
+        jury_id: req.auth.userId,
+        player_id: req.params.player_id,
+        team_id: req.params.team_id,
+        game_id: tournament.game_id, // the tournament has a game_id field
+        total_score: Object.values(req.body.criteria).reduce((sum, value) => sum + value, 0),
+      });
+
+      // Save the new score
+      newScore.save()
+        .then(() => res.status(201).json({ message: "Nouveau score enregistré !" }))
+        .catch((error) => res.status(400).json({ error: error.message }));
+    })
+    .catch((error) => res.status(500).json({ error: error.message }));
 };
+
 
 // Update
 exports.updateScore = (req, res, next) => {

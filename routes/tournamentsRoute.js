@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const TournamentsController = require("../controller/TournamentsController");
 const RewardsController = require("../controller/RewardsController");
+const ScoresController = require("../controller/ScoresController");
 const auth = require("../middleware/auth.js");
 
 // Classic CRUD routes
@@ -16,6 +17,8 @@ router.get("/:tournament_id/teams/:team_id", TournamentsController.getPlayersInT
 // Rewards in a tournament
 router.get("/:tournament_id/rewards", RewardsController.getRewardsInTournament);
 router.get("/:tournament_id/teams/:team_id/rewards", RewardsController.getRewardsInTeam);
+// Adding score to player in tournament
+router.post("/:tournament_id/teams/:team_id/players/:player_id", auth, ScoresController.createScore);
 
 // /tournaments/{id}/players
 // /tournaments/{id}/jury

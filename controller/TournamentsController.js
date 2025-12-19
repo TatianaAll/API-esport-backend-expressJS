@@ -71,12 +71,12 @@ exports.getTournamentById = (req, res, next) => {
 // Get all the teams registrered in a specific tournament
 exports.getTeamsInTournament = (req, res, next) => {
   Tournaments.findOne({ _id: req.params.tournament_id })
-    .populate("registred_teams") // field name in TournamentModel
+    .populate("registered_teams.team") // field name in TournamentModel
     .then((tournament) => {
       if (!tournament) {
         return res.status(404).json({ message: "Tournoi non trouvé" });
       }
-      res.status(200).json(tournament.registred_teams);
+      res.status(200).json(tournament.registered_teams);
     })
     .catch((error) => res.status(400).json({ error }));
 };

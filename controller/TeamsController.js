@@ -16,7 +16,6 @@ exports.createTeam = (req, res, next) => {
     });
 };
 
-
 // READ
 exports.getAllTeams = (req, res, next) => {
   Teams.find()
@@ -26,6 +25,7 @@ exports.getAllTeams = (req, res, next) => {
 // Get details of a team
 exports.getTeamsById = (req, res, next) => {
   Teams.findOne({ _id: req.params.id })
+    .populate("teammates")
     .then((foundedTeams) => res.status(200).json(foundedTeams))
     .catch((error) => res.status(404).json({ error })); // ofindOne to get a specific document with the id
 };
@@ -48,15 +48,16 @@ exports.updateTeams = (req, res, next) => {
   const updates = req.body || {};
 
   Teams.findByIdAndUpdate(id, updates, {
-    new: true,           // update the document and return the updated version
+    new: true, // update the document and return the updated version
     runValidators: true, // apply schema validators on update
-    useFindAndModify: false
+    useFindAndModify: false,
   })
-    .then(updated => {
-      if (!updated) return res.status(404).json({ message: 'Equipe non trouvée' });
+    .then((updated) => {
+      if (!updated)
+        return res.status(404).json({ message: "Equipe non trouvée" });
       res.status(200).json(updated);
     })
-    .catch(error => res.status(400).json({ error }));
+    .catch((error) => res.status(400).json({ error }));
 };
 
 // DELETE

@@ -40,3 +40,27 @@ exports.getRewardsInTeam = (req, res, next) => {
     .then((rewards) => res.status(200).json(rewards))
     .catch((error) => res.status(400).json({ error }));
 };
+
+exports.deleteRewardById = (req, res, next) => {
+  Rewards.deleteOne({ _id: req.params.id })
+    .then(() => res.status(200).json({ message: "Récompense supprimée !" }))
+    .catch((error) => res.status(400).json({ error }));
+};
+
+exports.updateReward = (req, res, next) => {
+  const id = req.params.id;
+  const updates = { ...(req.body || {}) };
+
+  // Control: only an admin can update a reward
+  if (!req.auth || req.auth.user_role.includes("admin")) {
+    return res.status(403).json({ message: "Non autorisé" });
+  }
+  // update the reward
+  Rewards.findByIdAndUpdate(id, updates, { new: true, runValidators: true })
+    .then((updated) => {
+      if (!updated)
+        return res.status(404).json({ message: "Récompense non trouvée" });
+      res.status(200).json(updated);
+    })
+    .catch((error) => res.status(400).json({ error }));
+};

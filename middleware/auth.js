@@ -1,6 +1,6 @@
-// On va créé un dossier middleware avec dedans un fichier auth.js pour gérer notre authentification.
-// Cela va permettre de récupérer la valeur du Token du client et de vérifier la validité et permettra de récupérer des infos comme le userId.
-//Tout d'abord on doit split le token puis on va utiliser la méthode verify() de jwt.
+// Create a middleware to authenticate users based on JWT tokens
+// This will allow us to retrieve the client's token value and verify its validity, and also retrieve information such as the userId.
+// First, we must split the token and then use the verify() method from jwt.
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
@@ -10,17 +10,17 @@ module.exports = (req, res, next) => {
     if (!authorizationHeader) {
       res.status(401).json({ message: "Pas de jetons d'authentification fourni" });
     } else {
-      // On split le token car il est composé de Bearer avant
+      // Split the token because it is composed of Bearer before
       const token = req.headers.authorization.split(" ")[1];
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-      // l'objet req/request est transmis aux routes qui vont être appelées
-      // on va donc créer un objet ici auth avec comme info l'id
+      // The req/request object is passed to the routes that will be called
+      // so we create an auth object here with the userId as information
       req.auth = {
         userId: decodedToken.userId,
         role: decodedToken.role,
       };
-      // Si tout va bien, on passe au code suivant avec next
+      // If everything goes well, we pass to the next code with next
       next();
     }
   } catch (error) {

@@ -20,7 +20,7 @@ exports.createTournament = (req, res, next) => {
 
   // Check the validity of juries members
   if (req.body.jury && req.body.jury.length > 0) {
-    Users.find({ _id: { $in: req.body.jury } })
+    Users.find({ _id: { $in: req.body.jury } }) // if the user is in all users that have the role "jury" (mongoDB notation)
       .then((users) => {
         const invalidJury = users.find((user) => !user.role.includes("jury"));
 
@@ -94,8 +94,8 @@ exports.getPlayersInTeam = (req, res, next) => {
 
       // Search the team in the registered_teams array
       const entry = tournament.registered_teams.find(
-        (registredTeamFound) =>
-          registredTeamFound.team._id.toString() === req.params.team_id
+        (registeredTeamFound) =>
+          registeredTeamFound.team._id.toString() === req.params.team_id
       ); // team_id from the URL params
 
       if (!entry) {

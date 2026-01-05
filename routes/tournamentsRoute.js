@@ -71,7 +71,7 @@ module.exports = router;
  *         specialized_game:
  *           type: string
  *           description: Reference id to the `Games` resource
- *         registred_teams:
+ *         registered_teams:
  *           type: array
  *           items:
  *             type: string

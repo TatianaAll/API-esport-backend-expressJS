@@ -15,21 +15,13 @@ const tournamentSchema = mongoose.Schema({
   },
   registered_teams: [
     {
-      team: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Teams",
-        required: true,
-      },
+      team: { type: mongoose.Schema.Types.ObjectId, ref: "Teams", required: true, },
       inscription_date: { type: Date, required: true, default: Date.now },
     },
   ],
-  registred_juries: [
+  registered_juries: [
     {
-      jury: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
-        required: true,
-      },
+      jury: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true, },
       inscription_date: { type: Date, required: true, default: Date.now },
     },
   ],

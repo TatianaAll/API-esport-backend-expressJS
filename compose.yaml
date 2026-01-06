@@ -14,15 +14,17 @@ services:
     ports:
       - 8081:8081
     environment:
-      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/api-sport
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/api-esport
       ME_CONFIG_BASICAUTH_ENABLED: true
       ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
       ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
+    labels:
+      - "traefik.http.routers.mongo-express.rule=Host(`mongo-express.localhost`)"
 
   api:
     build: .
-    ports:
-      - 3001:3001
+    #ports:
+    #  - 3001:3001
     depends_on:
       - mongo
     environment:
@@ -31,27 +33,14 @@ services:
       DB_CONNECTION: mongodb://mongo:27017/api-sport
     volumes: 
       - uploads:/app/uploads
-
-  dozzle:
-    image: amir20/dozzle:latest
-    ports:
-      - "8888:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-  
-  portainer:
-    container_name: portainer
-    image: portainer/portainer-ce:lts
-    restart: always
-    command: --http-enabled
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    ports:
-      - "9080:9000"
-      - "9443:9443"
+    labels:
+      - "traefik.http.routers.api.rule=Host(`api-esport.localhost`)"
 
 volumes:
   mongodata:
   uploads:
-  portainer_data:
+
+networks:
+  default:
+    external: true
+    name: webproxy

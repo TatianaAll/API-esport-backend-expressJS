@@ -1,0 +1,57 @@
+services:
+  # docker run --name mongoDB -d mongo:latest
+  mongo:
+    image: mongo:7
+    restart: always
+    volumes:
+      - mongodata:/data/db
+
+  mongo-express:
+    image: mongo-express
+    depends_on:
+      - mongo
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/api-sport
+      ME_CONFIG_BASICAUTH_ENABLED: true
+      ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
+      ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
+
+  api:
+    build: .
+    ports:
+      - 3001:3001
+    depends_on:
+      - mongo
+    environment:
+      PORT: 3001
+      JWT_SECRET: EsportAPISecretKeyDecember2025
+      DB_CONNECTION: mongodb://mongo:27017/api-sport
+    volumes: 
+      - uploads:/app/uploads
+
+  dozzle:
+    image: amir20/dozzle:latest
+    ports:
+      - "8888:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:lts
+    restart: always
+    command: --http-enabled
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - "9080:9000"
+      - "9443:9443"
+
+volumes:
+  mongodata:
+  uploads:
+  portainer_data:

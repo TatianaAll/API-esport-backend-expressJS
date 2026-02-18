@@ -6,7 +6,7 @@ const upload = require("../middleware/uploads.js");
 
 router.post(
   "/signup",
-  upload.single('avatar'), // same name as in user Controller
+  //upload.single('avatar'), // same name as in user Controller
   UsersController.signupNewUser
 );
 

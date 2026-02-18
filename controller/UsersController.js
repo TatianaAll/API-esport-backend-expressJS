@@ -12,7 +12,7 @@ exports.signupNewUser = (req, res, next) => {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         email: req.body.email,
-        role: req.body.role || ["spectator"],
+        role: ["spectator"],
         password: hash,
         favorite_game: req.body.favorite_game,
         team_role: req.body.team_role,
@@ -20,7 +20,7 @@ exports.signupNewUser = (req, res, next) => {
         nationality: req.body.nationality,
         specialty: req.body.specialty,
         team_id: req.body.team_id,
-        avatar: req.file ? req.file.path : undefined, // multer avatar upload
+        /* avatar: req.file ? req.file.path : undefined, // multer avatar upload */
       });
 
       user

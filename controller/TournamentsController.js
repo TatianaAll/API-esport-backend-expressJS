@@ -67,6 +67,20 @@ exports.getTournamentById = (req, res, next) => {
     .then((tournaments) => res.status(200).json(tournaments))
     .catch((error) => res.status(404).json({ error })); // findOne() to get a specific document with the id
 };
+// get the last tournament ended
+exports.getLastTournament = (req, res, next) => {
+  Tournaments.findOne({ status: "ended" }) // get the last with status "terminé"
+    .sort({ end_date: -1 }) // sort by date (more recent to more old)
+    .then((tournament) => {
+      if (!tournament) {
+        return res
+          .status(404)
+          .json({ message: "Aucun tournoi terminé trouvé" });
+      }
+      res.status(200).json(tournament);
+    })
+    .catch((error) => res.status(400).json({ error }));
+};
 
 // Get all the teams registrered in a specific tournament
 exports.getTeamsInTournament = (req, res, next) => {
@@ -95,7 +109,7 @@ exports.getPlayersInTeam = (req, res, next) => {
       // Search the team in the registered_teams array
       const entry = tournament.registered_teams.find(
         (registeredTeamFound) =>
-          registeredTeamFound.team._id.toString() === req.params.team_id
+          registeredTeamFound.team._id.toString() === req.params.team_id,
       ); // team_id from the URL params
 
       if (!entry) {

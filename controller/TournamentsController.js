@@ -69,8 +69,7 @@ exports.getTournamentById = (req, res, next) => {
 };
 // get the last tournament ended
 exports.getLastTournament = (req, res, next) => {
-  Tournaments.findOne({ status: "ended" }) // get the last with status "terminé"
-    .sort({ end_date: -1 }) // sort by date (more recent to more old)
+  Tournaments.find({ status: "ended" }) // get the last with status "terminé"
     .then((tournament) => {
       if (!tournament) {
         return res

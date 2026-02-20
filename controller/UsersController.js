@@ -67,6 +67,19 @@ exports.loginUser = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
+// get one user by id
+exports.getOneUserById = (req, res, next) => {
+  Users.findOne({ _id: req.params.id })
+    .then((user) => res.status(200).json(user))
+    .catch((error) => res.status(404).json({ error }));
+};
+
+exports.getAllUsers = (req, res, next) => {
+  Users.find()
+    .then((allUsers) => res.status(200).json(allUsers))
+    .catch((error) => res.status(400).json({ error }));
+}
+
 // UPDATE (PUT/PATCH) — only by the user himself
 exports.updateUser = (req, res, next) => {
   const id = req.params.id;

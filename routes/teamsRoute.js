@@ -13,6 +13,7 @@ router.patch("/:id", TeamsController.updateTeams);
 // routes for getting players and rewards in a team
 router.get("/:id/players", TeamsController.getPlayersInTeam);
 router.get("/:id/rewards", RewardsController.getRewardsInTeam);
+router.get("/search", TeamsController.searchInTeams);
 
 module.exports = router;
 /**

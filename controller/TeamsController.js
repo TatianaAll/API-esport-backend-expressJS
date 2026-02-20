@@ -42,6 +42,21 @@ exports.getPlayersInTeam = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
+exports.searchInTeams = (req, res, next) => {
+  // We need the query from the frontend
+  const { query } = req.query;
+  // if we didn't have a query ==> error
+  if (!query) {
+    return res.status(400).json({ message: "Query is required" });
+  }
+  // research with the special caracter $ in mongoDB
+  Teams.find({ name: { $regex: query } })
+    .then((teams) => {
+      res.status(200).json(teams);
+    })
+    .catch((error) => res.status(500).json({ message: error.message }));
+};
+
 // UPDATE
 exports.updateTeams = (req, res, next) => {
   const id = req.params.id;

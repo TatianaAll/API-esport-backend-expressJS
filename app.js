@@ -12,7 +12,7 @@ if (typeof uri === "string" && uri.startsWith('"') && uri.endsWith('"')) {
 }
 
 if (!uri) {
-  console.error("DB_CONNECTION is not set. Check backend/.env");
+  console.error("DB_CONNECTION n'existe pas, vérifier le .env");
 } else {
   const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
   mongoose

@@ -7,8 +7,8 @@ const UserSchema = mongoose.Schema({
   avatar: { type: String },
   role: {
     type: [String],
-    enum: ["spectator", "jury", "player", "admin"],
-    default: "spectator",
+    enum: ["user", "jury", "admin"],
+    default: ["user"],
     required: true,
   },
   password: { type: String, required: true },

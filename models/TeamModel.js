@@ -14,6 +14,12 @@ const TeamSchema = mongoose.Schema({
       ref: "Users", // la référence au modèle Users
     },
   ],
+  managers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+    }
+  ],
   creation_date: { type: Date, default: Date.now },
   nationality: { type: String },
 });

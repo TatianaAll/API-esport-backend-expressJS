@@ -61,4 +61,7 @@ app.use('/rewards', rewardsRoutes);
 const scoresRoutes = require('./routes/scoresRoute');
 app.use('/scores', scoresRoutes);
 
+const adminsRoutes = require('./routes/adminsRoute');
+app.use('/admin', adminsRoutes);
+
 module.exports = app;

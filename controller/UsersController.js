@@ -4,31 +4,39 @@ const jwt = require("jsonwebtoken");
 
 // CREATE
 // Create new user for register (signup)
-exports.signupNewUser = (req, res, next) => {
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => {
-      const user = new Users({
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        email: req.body.email,
-        role: ["spectator"],
-        password: hash,
-        favorite_game: req.body.favorite_game,
-        team_role: req.body.team_role,
-        year_joining_team: req.body.year_joining_team,
-        nationality: req.body.nationality,
-        specialty: req.body.specialty,
-        team_id: req.body.team_id,
-        /* avatar: req.file ? req.file.path : undefined, // multer avatar upload */
-      });
+exports.signupNewUser = async (req, res, next) => {
+  try {
+    // Check if the email already exist in DB
+    const existingUser = await Users.findOne({ email: req.body.email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email déjà utilisé" });
+    }
 
-      user
-        .save()
-        .then(() => res.status(201).json({ message: "Utilisateur créé !" }))
-        .catch((error) => res.status(400).json({ error }));
-    })
-    .catch((error) => res.status(500).json({ error }));
+    // Hash password
+    const hash = await bcrypt.hash(req.body.password, 10);
+
+    // Création utilisateur
+    const user = new Users({
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      email: req.body.email,
+      password: hash,
+      favorite_game: req.body.favorite_game,
+      team_role: req.body.team_role,
+      year_joining_team: req.body.year_joining_team,
+      nationality: req.body.nationality,
+      specialty: req.body.specialty,
+      team_id: req.body.team_id,
+      /* avatar: req.file ? req.file.path : undefined, // multer avatar upload */
+    });
+
+    await user.save();
+
+    res.status(201).json({ message: "Utilisateur créé !" });
+
+  } catch (error) {
+    res.status(400).json({ message: "Erreur lors de la création" });
+  }
 };
 
 // READ

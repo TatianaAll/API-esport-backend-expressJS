@@ -1,4 +1,5 @@
 const Teams = require("../models/TeamModel"); // on appelle le modèle
+const JoinRequest = require("../models/JoinRequestModel");
 const { sendEmail } = require("../middleware/emailService");
 
 // CREATE
@@ -87,6 +88,7 @@ exports.deleteTeamsById = (req, res, next) => {
 exports.requestToJoin = (req, res, next) => {
   // need the user wh's asking to join the team
   const userId = req.user.id;
+  const teamId = req.params.id;
 
   Teams.findOne({ _id: req.params.id })
     .populate("managers")
@@ -95,27 +97,45 @@ exports.requestToJoin = (req, res, next) => {
         return res.status(404).json({ message: "Équipe non trouvée" });
       }
       // if the same user already have join the team => error 409 Conflict
-      if (team.teammates.includes(userId)) {
-        return res
-          .status(409)
-          .json({
-            message: "Vous êtes déjà membre de cette équipe"
-          });
+      if (team.teammates.some((id) => id.toString() === userId)) {
+        return res.status(409).json({
+          message: "Vous êtes déjà membre de cette équipe",
+        });
       }
 
-      const subject = "Nouvelle demande pour votre équipe";
-      // message to complete later
-      const message = `${userId} souhaite rejoindre votre équipe ${team.name}`;
+      // check if a joining request already exist for this user
+      JoinRequest.findOne({
+        user: userId,
+        team: teamId,
+        status: "pending",
+      })
+        .then((request) => {
+          if (request) {
+            return res.status(409).json({
+              message: "Une demande est déjà en cours pour cette équipe",
+            });
+          }
+          // create the resquest
+          JoinRequest.create({
+            user: userId,
+            team: teamId,
+          });
 
-      team.managers.forEach((manager) => {
-        sendEmail(manager.email, subject, message).catch((err) =>
-          console.log("Erreur email:", err),
-        );
-      });
+          const subject = "Nouvelle demande pour votre équipe";
+          // message to complete later
+          const message = `${userId} souhaite rejoindre votre équipe ${team.name}`;
 
-      res.status(200).json({
-        message: "Demande envoyée aux managers",
-      });
-    })
-    .catch((error) => res.status(400).json({ error }));
+          team.managers.forEach((manager) => {
+            sendEmail(manager.email, subject, message).catch((err) =>
+              console.log("Erreur email:", err),
+            );
+          });
+
+          res.status(200).json({
+            message: "Demande envoyée aux managers",
+          });
+        })
+
+        .catch((error) => res.status(400).json({ error }));
+    });
 };

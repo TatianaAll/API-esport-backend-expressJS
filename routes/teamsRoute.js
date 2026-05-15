@@ -10,15 +10,15 @@ router.get("/", TeamsController.getAllTeams);
 // for searching a team
 router.get("/search", TeamsController.searchInTeams);
 
-// for asking to join a team
-router.post("/join-request", TeamsController.requestToJoin);
-
 // see detail of a team by id
 router.get("/:id", TeamsController.getTeamsById);
 
 // create/update team
 router.post("/", TeamsController.createTeam);
 router.patch("/:id", TeamsController.updateTeams);
+
+// for asking to join a team ==> need to be authenticated
+router.post(":id/join-request", auth, TeamsController.requestToJoin);
 
 // delete a team
 router.delete("/:id", TeamsController.deleteTeamsById);

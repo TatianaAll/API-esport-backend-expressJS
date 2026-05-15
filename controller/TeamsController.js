@@ -1,7 +1,8 @@
 const Teams = require("../models/TeamModel"); // on appelle le modèle
+const { sendEmail } = require("../middleware/emailService");
 
 // CREATE
-// Create new game
+// Create new team
 exports.createTeam = (req, res, next) => {
   const newTeam = new Teams({
     ...req.body, //read the body
@@ -79,5 +80,42 @@ exports.updateTeams = (req, res, next) => {
 exports.deleteTeamsById = (req, res, next) => {
   Teams.deleteOne({ _id: req.params.id })
     .then(() => res.status(200).json({ message: "Jeu supprimé !" }))
+    .catch((error) => res.status(400).json({ error }));
+};
+
+// Asking to join a preexisting team
+exports.requestToJoin = (req, res, next) => {
+  // need the user wh's asking to join the team
+  const userId = req.user.id;
+
+  Teams.findOne({ _id: req.params.id })
+    .populate("managers")
+    .then((team) => {
+      if (!team) {
+        return res.status(404).json({ message: "Équipe non trouvée" });
+      }
+      // if the same user already have join the team => error 409 Conflict
+      if (team.teammates.includes(userId)) {
+        return res
+          .status(409)
+          .json({
+            message: "Vous êtes déjà membre de cette équipe"
+          });
+      }
+
+      const subject = "Nouvelle demande pour votre équipe";
+      // message to complete later
+      const message = `${userId} souhaite rejoindre votre équipe ${team.name}`;
+
+      team.managers.forEach((manager) => {
+        sendEmail(manager.email, subject, message).catch((err) =>
+          console.log("Erreur email:", err),
+        );
+      });
+
+      res.status(200).json({
+        message: "Demande envoyée aux managers",
+      });
+    })
     .catch((error) => res.status(400).json({ error }));
 };

@@ -14,7 +14,7 @@ router.get("/search", TeamsController.searchInTeams);
 router.get("/:id", TeamsController.getTeamsById);
 
 // create/update team
-router.post("/", TeamsController.createTeam);
+router.post("/", auth, TeamsController.createTeam);
 router.patch("/:id", TeamsController.updateTeams);
 
 // for asking to join a team ==> need to be authenticated

@@ -147,3 +147,38 @@ exports.requestToJoin = (req, res, next) => {
         .catch((error) => res.status(400).json({ error }));
     });
 };
+
+exports.getAllJoiningRequests = (req, res, next) => {
+  const teamId = req.params.id;
+  const userId = req.auth.userId; // need to check the user
+
+  // Check if the team exist && the user is manager
+  Teams.findById(teamId)
+    .then((team) => {
+      if (!team) {
+        return res.status(404).json({ message: "Team non trouvée" });
+      }
+
+      const isManager = team.managers.some(
+        (managerId) => managerId.toString() === userId,
+      );
+
+      if (!isManager) {
+        return res.status(403).json({ message: "Accès refusé" });
+      }
+
+      // Return the requests
+      return JoinRequest.find({
+        status: "pending",
+        team: teamId,
+      }).populate("user", "firstname lastname email");
+    })
+    .then((pendingRequests) => {
+      if (pendingRequests) {
+        res.status(200).json(pendingRequests);
+      }
+    })
+    .catch(() => {
+      res.status(400).json({ message: "Erreur récupération" });
+    });
+};

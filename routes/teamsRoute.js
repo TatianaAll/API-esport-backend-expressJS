@@ -18,7 +18,7 @@ router.post("/", TeamsController.createTeam);
 router.patch("/:id", TeamsController.updateTeams);
 
 // for asking to join a team ==> need to be authenticated
-router.post(":id/join-request", auth, TeamsController.requestToJoin);
+router.post("/:id/join-request", auth, TeamsController.requestToJoin);
 
 // delete a team
 router.delete("/:id", TeamsController.deleteTeamsById);

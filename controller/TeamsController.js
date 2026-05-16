@@ -5,16 +5,24 @@ const { sendEmail } = require("../middleware/emailService");
 // CREATE
 // Create new team
 exports.createTeam = (req, res, next) => {
+  const userId = req.auth.userId; // current user
+
   const newTeam = new Teams({
-    ...req.body, //read the body
+    name: req.body.name,
+    favorite_game: req.body.favorite_game,
+    nationality: req.body.nationality,
+    
+    managers: [userId],
+    teammates: [userId],
   });
+
   newTeam
-    .save() //save in DB
+    .save()
     .then(() => {
       res.status(201).json({ message: "Nouvelle équipe enregistrée !" });
     })
     .catch((error) => {
-      res.status(400).json({ error });
+      res.status(400).json({ message: "Erreur création équipe" });
     });
 };
 
@@ -87,7 +95,7 @@ exports.deleteTeamsById = (req, res, next) => {
 // Asking to join a preexisting team
 exports.requestToJoin = (req, res, next) => {
   // need the user wh's asking to join the team
-  const userId = req.user.id;
+  const userId = req.auth.userId;
   const teamId = req.params.id;
 
   Teams.findOne({ _id: req.params.id })

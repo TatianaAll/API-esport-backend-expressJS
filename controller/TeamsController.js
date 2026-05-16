@@ -11,7 +11,7 @@ exports.createTeam = (req, res, next) => {
     name: req.body.name,
     favorite_game: req.body.favorite_game,
     nationality: req.body.nationality,
-    
+    // adding the creator as member and manager of the team
     managers: [userId],
     teammates: [userId],
   });

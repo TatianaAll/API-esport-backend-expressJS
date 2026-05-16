@@ -27,6 +27,11 @@ router.delete("/:id", TeamsController.deleteTeamsById);
 router.get("/:id/players", TeamsController.getPlayersInTeam);
 router.get("/:id/rewards", RewardsController.getRewardsInTeam);
 
+// for the manager to manage the teams members
+router.get("/:id/managers/joining-requests", auth, TeamsController.getAllJoiningRequests);
+// Awnsering requests
+router.post("/:id/managers/joining-requests/:requestId", auth, TeamsController.responseToRequest);
+
 module.exports = router;
 /**
  * @swagger

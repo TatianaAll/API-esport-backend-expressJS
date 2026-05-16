@@ -1,18 +1,28 @@
 const Teams = require("../models/TeamModel"); // on appelle le modèle
+const JoinRequest = require("../models/JoinRequestModel");
+const { sendEmail } = require("../middleware/emailService");
 
 // CREATE
-// Create new game
+// Create new team
 exports.createTeam = (req, res, next) => {
+  const userId = req.auth.userId; // current user
+
   const newTeam = new Teams({
-    ...req.body, //read the body
+    name: req.body.name,
+    favorite_game: req.body.favorite_game,
+    nationality: req.body.nationality,
+    // adding the creator as member and manager of the team
+    managers: [userId],
+    teammates: [userId],
   });
+
   newTeam
-    .save() //save in DB
+    .save()
     .then(() => {
       res.status(201).json({ message: "Nouvelle équipe enregistrée !" });
     })
     .catch((error) => {
-      res.status(400).json({ error });
+      res.status(400).json({ message: "Erreur création équipe" });
     });
 };
 
@@ -80,4 +90,60 @@ exports.deleteTeamsById = (req, res, next) => {
   Teams.deleteOne({ _id: req.params.id })
     .then(() => res.status(200).json({ message: "Jeu supprimé !" }))
     .catch((error) => res.status(400).json({ error }));
+};
+
+// Asking to join a preexisting team
+exports.requestToJoin = (req, res, next) => {
+  // need the user wh's asking to join the team
+  const userId = req.auth.userId;
+  const teamId = req.params.id;
+
+  Teams.findOne({ _id: req.params.id })
+    .populate("managers")
+    .then((team) => {
+      if (!team) {
+        return res.status(404).json({ message: "Équipe non trouvée" });
+      }
+      // if the same user already have join the team => error 409 Conflict
+      if (team.teammates.some((id) => id.toString() === userId)) {
+        return res.status(409).json({
+          message: "Vous êtes déjà membre de cette équipe",
+        });
+      }
+
+      // check if a joining request already exist for this user
+      JoinRequest.findOne({
+        user: userId,
+        team: teamId,
+        status: "pending",
+      })
+        .then((request) => {
+          if (request) {
+            return res.status(409).json({
+              message: "Une demande est déjà en cours pour cette équipe",
+            });
+          }
+          // create the resquest
+          JoinRequest.create({
+            user: userId,
+            team: teamId,
+          });
+
+          const subject = "Nouvelle demande pour votre équipe";
+          // message to complete later
+          const message = `${userId} souhaite rejoindre votre équipe ${team.name}`;
+
+          team.managers.forEach((manager) => {
+            sendEmail(manager.email, subject, message).catch((err) =>
+              console.log("Erreur email:", err),
+            );
+          });
+
+          res.status(200).json({
+            message: "Demande envoyée aux managers",
+          });
+        })
+
+        .catch((error) => res.status(400).json({ error }));
+    });
 };

@@ -4,16 +4,28 @@ const router = express.Router();
 const TeamsController = require("../controller/TeamsController");
 const RewardsController = require("../controller/RewardsController.js");
 
-// classic CRUD routes
+// classic get all teams
 router.get("/", TeamsController.getAllTeams);
+
+// for searching a team
+router.get("/search", TeamsController.searchInTeams);
+
+// see detail of a team by id
 router.get("/:id", TeamsController.getTeamsById);
-router.post("/", TeamsController.createTeam);
-router.delete("/:id", TeamsController.deleteTeamsById);
+
+// create/update team
+router.post("/", auth, TeamsController.createTeam);
 router.patch("/:id", TeamsController.updateTeams);
+
+// for asking to join a team ==> need to be authenticated
+router.post("/:id/join-request", auth, TeamsController.requestToJoin);
+
+// delete a team
+router.delete("/:id", TeamsController.deleteTeamsById);
+
 // routes for getting players and rewards in a team
 router.get("/:id/players", TeamsController.getPlayersInTeam);
 router.get("/:id/rewards", RewardsController.getRewardsInTeam);
-router.get("/search", TeamsController.searchInTeams);
 
 module.exports = router;
 /**

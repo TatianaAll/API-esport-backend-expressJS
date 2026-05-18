@@ -183,6 +183,7 @@ exports.getAllJoiningRequests = (req, res, next) => {
     });
 };
 
+// TO DO TO COMPLETE : SEND E-MAIL TO THE USER
 exports.acceptJoiningRequest = (req, res, next) => {
   const teamId = req.params.id;
   const requestId = req.params.requestId;

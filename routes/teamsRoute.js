@@ -29,8 +29,9 @@ router.get("/:id/rewards", RewardsController.getRewardsInTeam);
 
 // for the manager to manage the teams members
 router.get("/:id/managers/joining-requests", auth, TeamsController.getAllJoiningRequests);
-// Awnsering requests
-router.post("/:id/managers/joining-requests/:requestId", auth, TeamsController.responseToRequest);
+// Accept requests
+router.post("/:id/managers/joining-requests/:requestId", auth, TeamsController.acceptJoiningRequest);
+
 
 module.exports = router;
 /**

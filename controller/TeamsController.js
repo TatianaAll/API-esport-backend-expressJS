@@ -182,3 +182,53 @@ exports.getAllJoiningRequests = (req, res, next) => {
       res.status(400).json({ message: "Erreur récupération" });
     });
 };
+
+exports.acceptJoiningRequest = (req, res, next) => {
+  const teamId = req.params.id;
+  const requestId = req.params.requestId;
+  const userId = req.auth.userId;
+
+  // check if the user is manager in the team
+  Teams.findById(teamId)
+    .then((team) => {
+      if (!team) {
+        return res.status(404).json({ message: "Team non trouvée" });
+      }
+
+      const isManager = team.managers.some(
+        (managerId) => managerId.toString() === userId
+      );
+
+      if (!isManager) {
+        return res.status(403).json({ message: "Accès refusé" });
+      }
+      // get the joining request
+      return JoinRequest.findById(requestId);
+    })
+    // Get the request and update status
+    .then((request) => {
+      if (!request) {
+        return res.status(404).json({ message: "Demande non trouvée" });
+      }
+      // update status
+      request.status = "accepted";
+      return request.save();
+    })
+    // adding to the team
+    .then((updatedRequest) => {
+      if (!updatedRequest) return;
+
+      return Teams.findByIdAndUpdate(
+        teamId,
+        { $addToSet: { teammates: updatedRequest.user } },
+        { new: true }
+        // $addToSet is a Mongo function => https://www.mongodb.com/docs/manual/reference/operator/update/addToSet/
+      );
+    })
+    .then(() => {
+      res.status(200).json({ message: "Demande acceptée" });
+    })
+    .catch(() => {
+      res.status(400).json({ message: "Erreur traitement demande" });
+    });
+};

@@ -197,7 +197,7 @@ exports.acceptJoiningRequest = (req, res, next) => {
       }
 
       const isManager = team.managers.some(
-        (managerId) => managerId.toString() === userId
+        (managerId) => managerId.toString() === userId,
       );
 
       if (!isManager) {
@@ -211,6 +211,9 @@ exports.acceptJoiningRequest = (req, res, next) => {
       if (!request) {
         return res.status(404).json({ message: "Demande non trouvée" });
       }
+      if (request.status !== "pending") {
+        return res.status(400).json({ message: "Demande déjà traitée" });
+      }
       // update status
       request.status = "accepted";
       return request.save();
@@ -222,7 +225,7 @@ exports.acceptJoiningRequest = (req, res, next) => {
       return Teams.findByIdAndUpdate(
         teamId,
         { $addToSet: { teammates: updatedRequest.user } },
-        { new: true }
+        { new: true },
         // $addToSet is a Mongo function => https://www.mongodb.com/docs/manual/reference/operator/update/addToSet/
       );
     })
@@ -231,5 +234,50 @@ exports.acceptJoiningRequest = (req, res, next) => {
     })
     .catch(() => {
       res.status(400).json({ message: "Erreur traitement demande" });
+    });
+};
+
+exports.rejectJoiningRequest = (req, res, next) => {
+  const teamId = req.params.id;
+  const requestId = req.params.requestId;
+  const userId = req.auth.userId;
+
+  // check manager role
+  Teams.findById(teamId)
+    .then((team) => {
+      if (!team) {
+        return res.status(404).json({ message: "Team non trouvée" });
+      }
+
+      const isManager = team.managers.some(
+        (managerId) => managerId.toString() === userId,
+      );
+
+      if (!isManager) {
+        return res.status(403).json({ message: "Accès refusé" });
+      }
+
+      // get the request and be sure that it is still pending
+      return JoinRequest.findById(requestId);
+    })
+    .then((request) => {
+      if (!request) {
+        return res.status(404).json({ message: "Demande non trouvée" });
+      }
+
+      if (request.status !== "pending") {
+        return res.status(400).json({ message: "Demande déjà traitée" });
+      }
+
+      // Reject request
+      request.status = "rejected";
+
+      return request.save();
+    })
+    .then(() => {
+      res.status(200).json({ message: "Demande refusée" });
+    })
+    .catch(() => {
+      res.status(400).json({ message: "Erreur lors du refus" });
     });
 };

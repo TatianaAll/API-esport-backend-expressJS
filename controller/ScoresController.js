@@ -1,20 +1,20 @@
-const Scores = require("../models/NotationModel");
-const Tournaments = require("../models/TournamentModel");
+const Scores = require('../models/NotationModel');
+const Tournaments = require('../models/TournamentModel');
 
 // Get all scores
-exports.getAllScores = (req, res, next) => {
+exports.getAllScores = (req, res) => {
   Scores.find()
     .then((scores) => res.status(200).json(scores))
     .catch((error) => res.status(400).json({ error })); // find() to get all documents in the collection
 };
 // Get all scores in a tournament
-exports.getScoresInTournament = (req, res, next) => {
+exports.getScoresInTournament = (req, res) => {
   Scores.find({ tournament_id: req.params.tournament_id })
     .then((scores) => res.status(200).json(scores))
     .catch((error) => res.status(400).json({ error }));
 };
 // Get scores for a specific team in a tournament
-exports.getScoresForTeamInTournament = (req, res, next) => {
+exports.getScoresForTeamInTournament = (req, res) => {
   Scores.find({
     tournament_id: req.params.tournament_id,
     team_id: req.params.team_id,
@@ -23,7 +23,7 @@ exports.getScoresForTeamInTournament = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 // Get scores for a specific player in a tournament
-exports.getScoresForPlayerInTournament = (req, res, next) => {
+exports.getScoresForPlayerInTournament = (req, res) => {
   Scores.find({
     tournament_id: req.tournament_id,
     player_id: req.params.player_id,
@@ -33,19 +33,17 @@ exports.getScoresForPlayerInTournament = (req, res, next) => {
 };
 
 // CREATE
-exports.createScore = (req, res, next) => {
+exports.createScore = (req, res) => {
   // Check the role of the authenticated user
-  if (!req.auth || !req.auth.role.includes("jury")) {
-    return res
-      .status(403)
-      .json({ message: "Accès refusé : rôle de jury requis." });
+  if (!req.auth || !req.auth.role.includes('jury')) {
+    return res.status(403).json({ message: 'Accès refusé : rôle de jury requis.' });
   }
 
   // Check the existence of the tournament
   Tournaments.findOne({ _id: req.params.tournament_id })
     .then((tournament) => {
       if (!tournament) {
-        return res.status(404).json({ message: "Tournoi introuvable." });
+        return res.status(404).json({ message: 'Tournoi introuvable.' });
       }
 
       // Create the new score
@@ -56,30 +54,23 @@ exports.createScore = (req, res, next) => {
         team_id: req.params.team_id,
         tournament_id: req.params.tournament_id,
         game_id: tournament.game_id, // the tournament has a game_id field
-        total_score: Object.values(req.body.criteria).reduce(
-          (sum, value) => sum + value,
-          0
-        ),
+        total_score: Object.values(req.body.criteria).reduce((sum, value) => sum + value, 0),
       });
 
       // Save the new score
       newScore
         .save()
-        .then(() =>
-          res.status(201).json({ message: "Nouveau score enregistré !" })
-        )
+        .then(() => res.status(201).json({ message: 'Nouveau score enregistré !' }))
         .catch((error) => res.status(400).json({ error: error.message }));
     })
     .catch((error) => res.status(500).json({ error: error.message }));
 };
 
 // Update
-exports.updateScore = (req, res, next) => {
+exports.updateScore = (req, res) => {
   // First, check the role of the authenticated user
-  if (!req.auth || !req.auth.role.includes("jury")) {
-    return res
-      .status(403)
-      .json({ message: "Accès refusé : rôle de jury requis." });
+  if (!req.auth || !req.auth.role.includes('jury')) {
+    return res.status(403).json({ message: 'Accès refusé : rôle de jury requis.' });
   }
 
   const id = req.params.id;
@@ -87,15 +78,12 @@ exports.updateScore = (req, res, next) => {
   // Get the existing score
   Scores.findById(id)
     .then((score) => {
-      if (!score) return res.status(404).json({ message: "Score non trouvé" });
+      if (!score) return res.status(404).json({ message: 'Score non trouvé' });
       // Check if the authenticated user is the jury who created the score
       if (req.auth.userId !== score.jury_id.toString()) {
-        return res
-          .status(403)
-          .json({
-            message:
-              "Accès refusé : vous n'êtes pas le jury ayant créé ce score.",
-          });
+        return res.status(403).json({
+          message: "Accès refusé : vous n'êtes pas le jury ayant créé ce score.",
+        });
       }
 
       // Update the fields one by one
@@ -107,10 +95,7 @@ exports.updateScore = (req, res, next) => {
 
       // Recalculate total_score if criteria changed
       if (req.body.criteria) {
-        score.total_score = Object.values(req.body.criteria).reduce(
-          (sum, val) => sum + val,
-          0
-        );
+        score.total_score = Object.values(req.body.criteria).reduce((sum, val) => sum + val, 0);
       }
 
       // Save the updated score

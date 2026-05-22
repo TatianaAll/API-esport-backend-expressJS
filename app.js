@@ -1,13 +1,13 @@
-
-const express = require("express");
+const express = require('express');
+const process = require('process');
 
 // on importe le paquet mongoose pour se connecter à la base de données MongoDB
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const app = express();
 
 let uri = process.env.DB_CONNECTION;
-if (typeof uri === "string" && uri.startsWith('"') && uri.endsWith('"')) {
+if (typeof uri === 'string' && uri.startsWith('"') && uri.endsWith('"')) {
   uri = uri.slice(1, -1);
 }
 
@@ -17,11 +17,11 @@ if (!uri) {
   const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
   mongoose
     .connect(uri, clientOptions)
-    .then(() => console.log("Connexion à MongoDB réussie !"))
-    .catch((err) => console.error("Erreur connexion MongoDB :", err));
+    .then(() => console.log('Connexion à MongoDB réussie !'))
+    .catch((err) => console.error('Erreur connexion MongoDB :', err));
 
-  mongoose.connection.on("error", (err) => {
-    console.error("Mongoose connection error:", err);
+  mongoose.connection.on('error', (err) => {
+    console.error('Mongoose connection error:', err);
   });
 }
 
@@ -30,15 +30,12 @@ app.use(express.json());
 
 // Ajout du CORS pour autoriser les requêtes entre origines différentes
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // tout le monde peut y accéder
+  res.setHeader('Access-Control-Allow-Origin', '*'); // tout le monde peut y accéder
   res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization',
   ); // Autorisation de certains en-têtes
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
-  ); // autorisation des méthodes HTTP
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); // autorisation des méthodes HTTP
   next();
 });
 

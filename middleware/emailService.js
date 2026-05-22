@@ -3,6 +3,7 @@
 // Retrieved 2026-05-15, License - CC BY-SA 4.0
 
 const nodemailer = require('nodemailer');
+const process = require('process');
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -15,22 +16,21 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.sendEmail = (sendTo, subject, message) => {
-
   return new Promise((resolve, reject) => {
-
     const email_message = {
       from: { name: process.env.EMAIL_NAME },
       to: sendTo,
       subject: subject,
-      text: message
+      text: message,
     };
 
-    transporter.sendMail(email_message).then(() => {
-      resolve(true);
-    }).catch((error) => {
-      reject(false);
-    });
-
-  })
-
-}
+    transporter
+      .sendMail(email_message)
+      .then(() => {
+        resolve(true);
+      })
+      .catch(() => {
+        reject(false);
+      });
+  });
+};

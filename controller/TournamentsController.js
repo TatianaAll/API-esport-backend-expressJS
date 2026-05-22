@@ -1,28 +1,27 @@
-const Tournaments = require("../models/TournamentModel");
+const Tournaments = require('../models/TournamentModel');
+const Users = require('../models/UsersModel');
 
 // CREATE
 // Create new tournament
-exports.createTournament = (req, res, next) => {
+exports.createTournament = (req, res) => {
   const tournament = new Tournaments({
     ...req.body, //read the body
   });
   // Checking of the logic of dates
   if (req.body.start_date >= req.body.end_date) {
     return res.status(400).json({
-      message: "La date de début doit être antérieure à la date de fin.",
+      message: 'La date de début doit être antérieure à la date de fin.',
     });
   }
   if (new Date(req.body.start_date) < new Date()) {
-    return res
-      .status(400)
-      .json({ message: "La date de début doit être dans le futur." });
+    return res.status(400).json({ message: 'La date de début doit être dans le futur.' });
   }
 
   // Check the validity of juries members
   if (req.body.jury && req.body.jury.length > 0) {
     Users.find({ _id: { $in: req.body.jury } }) // if the user is in all users that have the role "jury" (mongoDB notation)
       .then((users) => {
-        const invalidJury = users.find((user) => !user.role.includes("jury"));
+        const invalidJury = users.find((user) => !user.role.includes('jury'));
 
         if (invalidJury) {
           return res.status(400).json({
@@ -34,7 +33,7 @@ exports.createTournament = (req, res, next) => {
         tournament
           .save()
           .then(() => {
-            res.status(201).json({ message: "Ajout du tournoi enregistré !" });
+            res.status(201).json({ message: 'Ajout du tournoi enregistré !' });
           })
           .catch((error) => {
             res.status(400).json({ error });
@@ -46,7 +45,7 @@ exports.createTournament = (req, res, next) => {
     tournament
       .save()
       .then(() => {
-        res.status(201).json({ message: "Ajout du tournoi enregistré !" });
+        res.status(201).json({ message: 'Ajout du tournoi enregistré !' });
       })
       .catch((error) => {
         res.status(400).json({ error });
@@ -56,26 +55,24 @@ exports.createTournament = (req, res, next) => {
 
 // READ
 // All tournaments
-exports.getAllTournaments = (req, res, next) => {
+exports.getAllTournaments = (req, res) => {
   Tournaments.find()
     .then((tournaments) => res.status(200).json(tournaments))
     .catch((error) => res.status(400).json({ error })); // find() to get all documents in the collection
 };
 // See a specific tournament by id
-exports.getTournamentById = (req, res, next) => {
+exports.getTournamentById = (req, res) => {
   Tournaments.findOne({ _id: req.params.tournament_id })
     .then((tournaments) => res.status(200).json(tournaments))
     .catch((error) => res.status(404).json({ error })); // findOne() to get a specific document with the id
 };
 // get the last tournament ended
-exports.getLastTournament = (req, res, next) => {
-  Tournaments.findOne({ status: "ended" }) // get only one tournament with status "ended"
-    .sort({end_date: -1}) // sorting the tournament by end dates
+exports.getLastTournament = (req, res) => {
+  Tournaments.findOne({ status: 'ended' }) // get only one tournament with status "ended"
+    .sort({ end_date: -1 }) // sorting the tournament by end dates
     .then((tournament) => {
       if (!tournament) {
-        return res
-          .status(404)
-          .json({ message: "Aucun tournoi terminé trouvé" });
+        return res.status(404).json({ message: 'Aucun tournoi terminé trouvé' });
       }
       res.status(200).json(tournament);
     })
@@ -83,40 +80,37 @@ exports.getLastTournament = (req, res, next) => {
 };
 
 // Get all the teams registrered in a specific tournament
-exports.getTeamsInTournament = (req, res, next) => {
+exports.getTeamsInTournament = (req, res) => {
   Tournaments.findOne({ _id: req.params.tournament_id })
-    .populate("registered_teams.team") // field name in TournamentModel
+    .populate('registered_teams.team') // field name in TournamentModel
     .then((tournament) => {
       if (!tournament) {
-        return res.status(404).json({ message: "Tournoi non trouvé" });
+        return res.status(404).json({ message: 'Tournoi non trouvé' });
       }
       res.status(200).json(tournament.registered_teams);
     })
     .catch((error) => res.status(400).json({ error }));
 };
 
-exports.getPlayersInTeam = (req, res, next) => {
+exports.getPlayersInTeam = (req, res) => {
   Tournaments.findOne({ _id: req.params.tournament_id }) // find the tournament
     .populate({
-      path: "registered_teams.team", // populate the team field in registered_teams
-      populate: { path: "teammates" },
+      path: 'registered_teams.team', // populate the team field in registered_teams
+      populate: { path: 'teammates' },
     })
     .then((tournament) => {
       if (!tournament) {
-        return res.status(404).json({ message: "Tournoi non trouvé" });
+        return res.status(404).json({ message: 'Tournoi non trouvé' });
       }
 
       // Search the team in the registered_teams array
       const entry = tournament.registered_teams.find(
-        (registeredTeamFound) =>
-          registeredTeamFound.team._id.toString() === req.params.team_id,
+        (registeredTeamFound) => registeredTeamFound.team._id.toString() === req.params.team_id,
       ); // team_id from the URL params
 
       if (!entry) {
         // If the team is not found
-        return res
-          .status(404)
-          .json({ message: "Équipe non trouvée dans ce tournoi" });
+        return res.status(404).json({ message: 'Équipe non trouvée dans ce tournoi' });
       }
 
       // Return the teammates of the found team
@@ -126,12 +120,12 @@ exports.getPlayersInTeam = (req, res, next) => {
 };
 
 // UPDATE
-exports.updateTournament = (req, res, next) => {
+exports.updateTournament = (req, res) => {
   // Check dates ONLY if modified
   if (req.body.start_date && req.body.end_date) {
     if (req.body.start_date >= req.body.end_date) {
       return res.status(400).json({
-        message: "La date de début doit être antérieure à la date de fin.",
+        message: 'La date de début doit être antérieure à la date de fin.',
       });
     }
   }
@@ -139,7 +133,7 @@ exports.updateTournament = (req, res, next) => {
   if (req.body.start_date) {
     if (new Date(req.body.start_date) < new Date()) {
       return res.status(400).json({
-        message: "La date de début doit être dans le futur.",
+        message: 'La date de début doit être dans le futur.',
       });
     }
   }
@@ -148,7 +142,7 @@ exports.updateTournament = (req, res, next) => {
   if (req.body.jury && req.body.jury.length > 0) {
     Users.find({ _id: { $in: req.body.jury } })
       .then((users) => {
-        const invalidJury = users.find((user) => !user.role.includes("jury"));
+        const invalidJury = users.find((user) => !user.role.includes('jury'));
 
         if (invalidJury) {
           return res.status(400).json({
@@ -159,7 +153,7 @@ exports.updateTournament = (req, res, next) => {
         // OK → update
         Tournaments.updateOne({ _id: req.params.id }, { ...req.body })
           .then(() => {
-            res.status(200).json({ message: "Tournoi mis à jour !" });
+            res.status(200).json({ message: 'Tournoi mis à jour !' });
           })
           .catch((error) => res.status(400).json({ error }));
       })
@@ -168,15 +162,15 @@ exports.updateTournament = (req, res, next) => {
     // No jury provided or empty ==> update directly
     Tournaments.updateOne({ _id: req.params.id }, { ...req.body })
       .then(() => {
-        res.status(200).json({ message: "Tournoi mis à jour !" });
+        res.status(200).json({ message: 'Tournoi mis à jour !' });
       })
       .catch((error) => res.status(400).json({ error }));
   }
 };
 
 // DELETE
-exports.deleteTournament = (req, res, next) => {
+exports.deleteTournament = (req, res) => {
   Tournaments.deleteOne({ _id: req.params.tournament_id })
-    .then(() => res.status(200).json({ message: "Tournoi supprimé !" }))
+    .then(() => res.status(200).json({ message: 'Tournoi supprimé !' }))
     .catch((error) => res.status(400).json({ error }));
 };

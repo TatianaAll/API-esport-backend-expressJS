@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "app.js",
   "scripts": {
-    "test": "",
+    "test": "jest",
     "lint": "eslint . --ext .js,.jsx",
     "format": "prettier --write .",
     "prepare": "husky"
@@ -30,6 +30,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
+    "jest": "^30.4.2",
     "lint-staged": "^17.0.5",
     "prettier": "^3.8.3"
   },

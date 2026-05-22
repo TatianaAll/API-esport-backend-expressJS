@@ -1,15 +1,15 @@
-const Games = require("../models/GameModel"); // call the model
-const Tournaments = require("../models/TournamentModel"); // call the model Tournaments
+const Games = require('../models/GameModel'); // call the model
+const Tournaments = require('../models/TournamentModel'); // call the model Tournaments
 
 // Create game
-exports.createGame = (req, res, next) => {
+exports.createGame = (req, res) => {
   const game = new Games({
     ...req.body, // decomposed the body
   });
   game
     .save() // save in DB
     .then(() => {
-      res.status(201).json({ message: "Ajout du jeu enregistré !" });
+      res.status(201).json({ message: 'Ajout du jeu enregistré !' });
     })
     .catch((error) => {
       res.status(400).json({ error });
@@ -17,25 +17,25 @@ exports.createGame = (req, res, next) => {
 };
 
 // READ
-exports.getAllGames = (req, res, next) => {
+exports.getAllGames = (req, res) => {
   Games.find()
     .then((games) => res.status(200).json(games))
     .catch((error) => res.status(400).json({ error })); // method find of mongoose to get all documents in the collection
 };
 
-exports.getGameById = (req, res, next) => {
+exports.getGameById = (req, res) => {
   Games.findOne({ _id: req.params.id_games })
     .then((games) => res.status(200).json(games))
     .catch((error) => res.status(404).json({ error })); // method findOne of mongoose to get one document by id
 };
 
-exports.getGameByName = (req, res, next) => {
+exports.getGameByName = (req, res) => {
   Games.findOne({ name: req.params.name })
     .then((games) => res.status(200).json(games))
     .catch((error) => res.status(404).json({ error }));
 };
 
-exports.getTournamentsForGame = (req, res, next) => {
+exports.getTournamentsForGame = (req, res) => {
   const gameId = req.params.id_games;
   Tournaments.find({ game: gameId })
     .then((tournaments) => res.status(200).json(tournaments))
@@ -43,25 +43,25 @@ exports.getTournamentsForGame = (req, res, next) => {
 };
 
 // UPDATE
-exports.updateGame = (req, res, next) => {
+exports.updateGame = (req, res) => {
   const id = req.params.id_games;
   const updates = req.body || {};
 
   Games.findByIdAndUpdate(id, updates, {
-    new: true,           // retourne le document mis à jour
+    new: true, // retourne le document mis à jour
     runValidators: true, // applique les validators du schéma
-    useFindAndModify: false
+    useFindAndModify: false,
   })
-    .then(updated => {
+    .then((updated) => {
       if (!updated) return res.status(404).json({ message: 'Jeu non trouvé' });
       res.status(200).json(updated);
     })
-    .catch(error => res.status(400).json({ error }));
+    .catch((error) => res.status(400).json({ error }));
 };
 
 // DELETE
-exports.deleteGameById = (req, res, next) => {
+exports.deleteGameById = (req, res) => {
   Games.deleteOne({ _id: req.params.id_games })
-    .then(() => res.status(200).json({ message: "Jeu supprimé !" }))
+    .then(() => res.status(200).json({ message: 'Jeu supprimé !' }))
     .catch((error) => res.status(400).json({ error }));
 };

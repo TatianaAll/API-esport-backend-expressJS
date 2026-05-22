@@ -2,23 +2,24 @@ require('dotenv').config();
 
 const http = require('http');
 const app = require('./app');
+const process = require('process');
 
 // Pour la documentation API avec Swagger
-const swaggerJsdoc = require("swagger-jsdoc"),
-  swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require('swagger-jsdoc'),
+  swaggerUi = require('swagger-ui-express');
 
 // Ajout du port normalisé
-const normalizePort = val => {
+const normalizePort = (val) => {
   const port = parseInt(val, 10);
   if (isNaN(port)) return val;
   if (port >= 0) return port;
   return false;
-}
+};
 const port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
 // Gestion des erreurs
-const errorHandler = error => {
+const errorHandler = (error) => {
   if (error.syscall !== 'listen') {
     throw error;
   }
@@ -49,29 +50,23 @@ server.on('listening', () => {
 // Set la documentation :
 const options = {
   definition: {
-    openapi: "3.1.0",
+    openapi: '3.1.0',
     info: {
-      title: "E-sport API : for your tournaments of cosy gaming",
-      version: "0.1.0",
-      description:
-        "API for managing e-sport tournaments",
+      title: 'E-sport API : for your tournaments of cosy gaming',
+      version: '0.1.0',
+      description: 'API for managing e-sport tournaments',
     },
     servers: [
       {
-        url: "http://localhost:3001",
+        url: 'http://localhost:3001',
       },
     ],
   },
-  apis: ["./routes/*.js"],
+  apis: ['./routes/*.js'],
 };
 
 const specs = swaggerJsdoc(options);
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs, { explorer: true })
-);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }));
 
 server.listen(port);
 // Lancement du server avec nodemon
-

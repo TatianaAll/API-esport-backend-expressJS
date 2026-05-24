@@ -17,7 +17,7 @@ describe('authentication middleware', () => {
     };
     next = jest.fn();
   });
-  it('should reject request without authorization header', () => {
+  it('Devrait rejeter une requete sans jeton JWT', () => {
     authMiddleware(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
@@ -26,4 +26,9 @@ describe('authentication middleware', () => {
     });
     expect(next).not.toHaveBeenCalled();
   });
+
+  // A AJOUTER :
+  /* Valide extraction userId et role du token
+Teste les tokens invalides
+Teste extraction du Bearer token */
 });

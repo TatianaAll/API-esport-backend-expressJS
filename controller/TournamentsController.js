@@ -4,24 +4,35 @@ const Users = require('../models/UsersModel');
 // CREATE
 // Create new tournament
 exports.createTournament = (req, res) => {
-  const tournament = new Tournaments({
-    ...req.body, //read the body
-  });
+  const { start_date, end_date, jury } = req.body;
   // Checking of the logic of dates
-  if (req.body.start_date >= req.body.end_date) {
+  if (start_date >= end_date) {
     return res.status(400).json({
       message: 'La date de début doit être antérieure à la date de fin.',
     });
   }
-  if (new Date(req.body.start_date) < new Date()) {
+  if (new Date(start_date) < new Date()) {
     return res.status(400).json({ message: 'La date de début doit être dans le futur.' });
   }
 
-  // Check the validity of juries members
-  if (req.body.jury && req.body.jury.length > 0) {
-    Users.find({ _id: { $in: req.body.jury } }) // if the user is in all users that have the role "jury" (mongoDB notation)
+  // validation about the jury's members
+  if (jury && jury.length > 0) {
+    Users.find({ _id: { $in: jury } })
       .then((users) => {
-        const invalidJury = users.find((user) => !user.role.includes('jury'));
+        // All objectID exists
+        if (users.length !== jury.length) {
+          return res.status(400).json({
+            message: "Certains utilisateurs du jury n'existent pas",
+          });
+        }
+
+        // users' role contain jury
+        const invalidJury = users.find((user) => {
+          if (Array.isArray(user.role)) {
+            return !user.role.includes('jury');
+          }
+          return user.role !== 'jury';
+        });
 
         if (invalidJury) {
           return res.status(400).json({
@@ -29,11 +40,17 @@ exports.createTournament = (req, res) => {
           });
         }
 
-        // Green flags only ==> save
+        // save
+        const tournament = new Tournaments({
+          ...req.body,
+        });
+
         tournament
           .save()
           .then(() => {
-            res.status(201).json({ message: 'Ajout du tournoi enregistré !' });
+            res.status(201).json({
+              message: 'Ajout du tournoi enregistré !',
+            });
           })
           .catch((error) => {
             res.status(400).json({ error });
@@ -41,11 +58,17 @@ exports.createTournament = (req, res) => {
       })
       .catch((error) => res.status(400).json({ error }));
   } else {
-    // No jury provided ==> save directly
+    // no jury member
+    const tournament = new Tournaments({
+      ...req.body,
+    });
+
     tournament
       .save()
       .then(() => {
-        res.status(201).json({ message: 'Ajout du tournoi enregistré !' });
+        res.status(201).json({
+          message: 'Ajout du tournoi enregistré !',
+        });
       })
       .catch((error) => {
         res.status(400).json({ error });

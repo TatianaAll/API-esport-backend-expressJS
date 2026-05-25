@@ -5,13 +5,17 @@ const Users = require('../models/UsersModel');
 // Create new tournament
 exports.createTournament = (req, res) => {
   const { start_date, end_date, jury } = req.body;
+  const start = new Date(start_date);
+  const end = new Date(end_date);
+  const now = new Date();
+
   // Checking of the logic of dates
-  if (start_date >= end_date) {
+  if (start >= end) {
     return res.status(400).json({
       message: 'La date de début doit être antérieure à la date de fin.',
     });
   }
-  if (new Date(start_date) < new Date()) {
+  if (new Date(start) < now) {
     return res.status(400).json({ message: 'La date de début doit être dans le futur.' });
   }
 

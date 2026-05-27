@@ -21,4 +21,25 @@ describe("création d'un tournoi", () => {
       message: 'La date de début doit être antérieure à la date de fin.',
     });
   });
+
+  it('Devrais retourner erreur si date de début déjà passée', () => {
+    const req = {
+      body: {
+        start_date: '2026-04-10', // already passed date
+        end_date: '2025-04-20',
+      },
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    createTournament(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'La date de début doit être antérieure à la date de fin.',
+    });
+  });
 });

@@ -26,7 +26,7 @@ describe("création d'un tournoi", () => {
     const req = {
       body: {
         start_date: '2026-04-10', // already passed date
-        end_date: '2025-04-20',
+        end_date: '2026-04-20',
       },
     };
 
@@ -39,7 +39,7 @@ describe("création d'un tournoi", () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      message: 'La date de début doit être antérieure à la date de fin.',
+      message: 'La date de début doit être dans le futur.',
     });
   });
 });

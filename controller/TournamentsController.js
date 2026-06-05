@@ -90,6 +90,10 @@ exports.getAllTournaments = (req, res) => {
 // See a specific tournament by id
 exports.getTournamentById = (req, res) => {
   Tournaments.findOne({ _id: req.params.tournament_id })
+    // populate to have the minimum data available
+    .populate('participants.user', 'firstname lastname')
+    .populate('participants.team', 'name')
+
     .then((tournaments) => res.status(200).json(tournaments))
     .catch((error) => res.status(404).json({ error })); // findOne() to get a specific document with the id
 };

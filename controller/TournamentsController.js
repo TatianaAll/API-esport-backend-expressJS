@@ -195,6 +195,7 @@ exports.updateTournament = (req, res) => {
   }
 };
 
+// add a player to a tournament
 exports.registerToTournament = async (req, res) => {
   try {
     const tournamentId = req.params.tournament_id;

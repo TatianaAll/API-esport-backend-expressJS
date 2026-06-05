@@ -36,6 +36,12 @@ app.use((req, res, next) => {
     'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization',
   ); // Autorisation de certains en-têtes
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); // allow HTTP methods
+
+  // allow if option
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+
   next();
 });
 

@@ -195,34 +195,41 @@ exports.updateTournament = (req, res) => {
   }
 };
 
-// add a participant
 exports.registerToTournament = async (req, res) => {
   try {
-    const tournamentId = req.params.id;
-    const { user, team, role } = req.body;
+    const tournamentId = req.params.tournament_id;
+    const userId = req.auth.userId;
+    const { role } = req.body;
 
-    // check if the user isn't already regiter to this specific tournament
+    // get the user infos
+    const user = await Users.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'Utilisateur introuvable',
+      });
+    }
+
     const tournament = await Tournaments.findById(tournamentId);
-    const alreadyRegistered = tournament.participants.some(
-      (participant) => participant.user.toString() === user,
-    );
 
+    // check if user isn't already registered
+    const alreadyRegistered = tournament.participants.some(
+      (participant) => participant.user.toString() === userId,
+    );
     if (alreadyRegistered) {
       return res.status(400).json({
         message: 'Utilisateur déjà inscrit',
       });
     }
 
-    // Register the participant
-    // update the tournament by its id
+    // push participant in the tournament
     await Tournaments.updateOne(
       { _id: tournamentId },
-      // adding a participant to the array with $push
       {
         $push: {
           participants: {
-            user,
-            team,
+            user: user._id,
+            team: user.team,
             role,
           },
         },

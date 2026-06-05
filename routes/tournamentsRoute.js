@@ -1,35 +1,39 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const TournamentsController = require("../controller/TournamentsController");
-const RewardsController = require("../controller/RewardsController");
-const ScoresController = require("../controller/ScoresController");
-const auth = require("../middleware/auth.js");
+const TournamentsController = require('../controller/TournamentsController');
+const RewardsController = require('../controller/RewardsController');
+const ScoresController = require('../controller/ScoresController');
+const auth = require('../middleware/auth.js');
 
 // Classic CRUD routes
 // Gets
-router.get("/", TournamentsController.getAllTournaments); // Get all the tournaments (no exceptions)
-router.get("/latest", TournamentsController.getLastTournament); // Get the last tournament ended
-router.get("/:tournament_id", TournamentsController.getTournamentById); // Get a specific tournament by its id
+router.get('/', TournamentsController.getAllTournaments); // Get all the tournaments (no exceptions)
+router.get('/latest', TournamentsController.getLastTournament); // Get the last tournament ended
+router.get('/:tournament_id', TournamentsController.getTournamentById); // Get a specific tournament by its id
 // create
-router.post("/", TournamentsController.createTournament);
-router.patch("/:tournament_id", auth, TournamentsController.updateTournament);
-router.delete("/:tournament_id", auth, TournamentsController.deleteTournament);
+router.post('/', TournamentsController.createTournament);
+router.patch('/:tournament_id', auth, TournamentsController.updateTournament);
+router.patch('/:tournament_id/register', auth, TournamentsController.registerToTournament); // add a participant
+router.delete('/:tournament_id', auth, TournamentsController.deleteTournament);
 // Teams in a tournament
-router.get("/:tournament_id/teams", TournamentsController.getTeamsInTournament);
-router.get("/:tournament_id/teams/:team_id", TournamentsController.getPlayersInTeam);
+router.get('/:tournament_id/teams', TournamentsController.getTeamsInTournament);
+router.get('/:tournament_id/teams/:team_id', TournamentsController.getPlayersInTeam);
 // Rewards in a tournament
-router.get("/:tournament_id/rewards", RewardsController.getRewardsInTournament);
-router.get("/:tournament_id/teams/:team_id/rewards", RewardsController.getRewardsInTeam);
+router.get('/:tournament_id/rewards', RewardsController.getRewardsInTournament);
+router.get('/:tournament_id/teams/:team_id/rewards', RewardsController.getRewardsInTeam);
 // Adding score to player in tournament
-router.post("/:tournament_id/teams/:team_id/players/:player_id", auth, ScoresController.createScore);
+router.post(
+  '/:tournament_id/teams/:team_id/players/:player_id',
+  auth,
+  ScoresController.createScore,
+);
 
 // /tournaments/{id}/players
 // /tournaments/{id}/jury
 
-// /tournaments/{id}/teams/{id_team}/players		
+// /tournaments/{id}/teams/{id_team}/players
 
 module.exports = router;
-
 
 /**
  * @swagger

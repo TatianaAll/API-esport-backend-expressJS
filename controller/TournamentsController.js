@@ -4,24 +4,39 @@ const Users = require('../models/UsersModel');
 // CREATE
 // Create new tournament
 exports.createTournament = (req, res) => {
-  const tournament = new Tournaments({
-    ...req.body, //read the body
-  });
+  const { start_date, end_date, jury } = req.body;
+  const start = new Date(start_date);
+  const end = new Date(end_date);
+  const now = new Date();
+
   // Checking of the logic of dates
-  if (req.body.start_date >= req.body.end_date) {
+  if (start >= end) {
     return res.status(400).json({
       message: 'La date de début doit être antérieure à la date de fin.',
     });
   }
-  if (new Date(req.body.start_date) < new Date()) {
+  if (new Date(start) < now) {
     return res.status(400).json({ message: 'La date de début doit être dans le futur.' });
   }
 
-  // Check the validity of juries members
-  if (req.body.jury && req.body.jury.length > 0) {
-    Users.find({ _id: { $in: req.body.jury } }) // if the user is in all users that have the role "jury" (mongoDB notation)
+  // validation about the jury's members
+  if (jury && jury.length > 0) {
+    Users.find({ _id: { $in: jury } })
       .then((users) => {
-        const invalidJury = users.find((user) => !user.role.includes('jury'));
+        // All objectID exists
+        if (users.length !== jury.length) {
+          return res.status(400).json({
+            message: "Certains utilisateurs du jury n'existent pas",
+          });
+        }
+
+        // users' role contain jury
+        const invalidJury = users.find((user) => {
+          if (Array.isArray(user.role)) {
+            return !user.role.includes('jury');
+          }
+          return user.role !== 'jury';
+        });
 
         if (invalidJury) {
           return res.status(400).json({
@@ -29,11 +44,17 @@ exports.createTournament = (req, res) => {
           });
         }
 
-        // Green flags only ==> save
+        // save
+        const tournament = new Tournaments({
+          ...req.body,
+        });
+
         tournament
           .save()
           .then(() => {
-            res.status(201).json({ message: 'Ajout du tournoi enregistré !' });
+            res.status(201).json({
+              message: 'Ajout du tournoi enregistré !',
+            });
           })
           .catch((error) => {
             res.status(400).json({ error });
@@ -41,11 +62,17 @@ exports.createTournament = (req, res) => {
       })
       .catch((error) => res.status(400).json({ error }));
   } else {
-    // No jury provided ==> save directly
+    // no jury member
+    const tournament = new Tournaments({
+      ...req.body,
+    });
+
     tournament
       .save()
       .then(() => {
-        res.status(201).json({ message: 'Ajout du tournoi enregistré !' });
+        res.status(201).json({
+          message: 'Ajout du tournoi enregistré !',
+        });
       })
       .catch((error) => {
         res.status(400).json({ error });
@@ -165,6 +192,46 @@ exports.updateTournament = (req, res) => {
         res.status(200).json({ message: 'Tournoi mis à jour !' });
       })
       .catch((error) => res.status(400).json({ error }));
+  }
+};
+
+// add a participant
+exports.registerToTournament = async (req, res) => {
+  try {
+    const tournamentId = req.params.id;
+    const { user, team, role } = req.body;
+
+    // check if the user isn't already regiter to this specific tournament
+    const tournament = await Tournaments.findById(tournamentId);
+    const alreadyRegistered = tournament.participants.some(
+      (participant) => participant.user.toString() === user,
+    );
+
+    if (alreadyRegistered) {
+      return res.status(400).json({
+        message: 'Utilisateur déjà inscrit',
+      });
+    }
+
+    // Register the participant
+    // update the tournament by its id
+    await Tournaments.updateOne(
+      { _id: tournamentId },
+      // adding a participant to the array with $push
+      {
+        $push: {
+          participants: {
+            user,
+            team,
+            role,
+          },
+        },
+      },
+    );
+
+    res.status(200).json({ message: 'Inscription réussie !' });
+  } catch (error) {
+    res.status(400).json({ error });
   }
 };
 

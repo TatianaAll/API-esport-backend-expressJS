@@ -1,7 +1,7 @@
 const express = require('express');
 const process = require('process');
 
-// on importe le paquet mongoose pour se connecter à la base de données MongoDB
+// Import the monngoose package to the connection at MongoDB
 const mongoose = require('mongoose');
 
 const app = express();
@@ -25,17 +25,17 @@ if (!uri) {
   });
 }
 
-// on précise l'utilisation de express et donc du JSON pour les requetes
+// Precision that Express use JSON for requests
 app.use(express.json());
 
-// Ajout du CORS pour autoriser les requêtes entre origines différentes
+// Add CORS to allow requests from different origins
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // tout le monde peut y accéder
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Everyone can access
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization',
   ); // Autorisation de certains en-têtes
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); // autorisation des méthodes HTTP
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); // allow HTTP methods
   next();
 });
 

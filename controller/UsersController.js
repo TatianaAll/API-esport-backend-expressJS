@@ -70,6 +70,7 @@ exports.loginUser = (req, res) => {
 // get one user by id
 exports.getOneUserById = (req, res) => {
   Users.findOne({ _id: req.params.id })
+    .populate('user.team')
     .then((user) => res.status(200).json(user))
     .catch((error) => res.status(404).json({ error }));
 };

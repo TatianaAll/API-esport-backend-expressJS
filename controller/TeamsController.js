@@ -1,29 +1,49 @@
 const Teams = require('../models/TeamModel'); // on appelle le modèle
 const JoinRequest = require('../models/JoinRequestModel');
 const { sendEmail } = require('../middleware/emailService');
+const Users = require('../models/UsersModel');
 
 // CREATE
 // Create new team
-exports.createTeam = (req, res) => {
-  const userId = req.auth.userId; // current user
+exports.createTeam = async (req, res) => {
+  try {
+    const userId = req.auth.userId; // current user
 
-  const newTeam = new Teams({
-    name: req.body.name,
-    favorite_game: req.body.favorite_game,
-    nationality: req.body.nationality,
-    // adding the creator as member and manager of the team
-    managers: [userId],
-    teammates: [userId],
-  });
+    // one team per user
+    const user = await Users.findById(userId);
+    if (user.team_id) {
+      return res.status(400).json({
+        message: 'Already in a team',
+      });
+    }
 
-  newTeam
-    .save()
-    .then(() => {
-      res.status(201).json({ message: 'Nouvelle équipe enregistrée !' });
-    })
-    .catch(() => {
-      res.status(400).json({ message: 'Erreur création équipe' });
+    const newTeam = new Teams({
+      name: req.body.name,
+      favorite_game: req.body.favorite_game,
+      nationality: req.body.nationality,
+      // adding the creator as member and manager of the team
+      managers: [userId],
+      teammates: [userId],
     });
+    const savedTeam = await newTeam.save();
+
+    // Update the User
+    await Users.findByIdAndUpdate(userId, {
+      team_id: savedTeam._id,
+      team_role: 'manager',
+      year_joining_team: new Date(),
+    });
+
+    res.status(201).json({
+      message: 'Nouvelle équipe enregistrée !',
+      teamId: savedTeam._id,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({
+      message: 'Erreur création équipe',
+    });
+  }
 };
 
 // READ

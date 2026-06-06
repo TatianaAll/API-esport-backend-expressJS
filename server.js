@@ -68,5 +68,6 @@ const options = {
 const specs = swaggerJsdoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }));
 
-server.listen(port);
+// server.listen(port);
+server.listen(port, '0.0.0.0');
 // Lancement du server avec nodemon

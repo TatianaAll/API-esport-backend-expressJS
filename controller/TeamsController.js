@@ -6,6 +6,7 @@ const Users = require('../models/UsersModel');
 // CREATE
 // Create new team
 exports.createTeam = async (req, res) => {
+  console.log('create team');
   try {
     const userId = req.auth.userId; // current user
 
@@ -28,11 +29,19 @@ exports.createTeam = async (req, res) => {
     const savedTeam = await newTeam.save();
 
     // Update the User
-    await Users.findByIdAndUpdate(userId, {
-      team_id: savedTeam._id,
-      team_role: 'manager',
-      year_joining_team: new Date(),
-    });
+    const updatedUser = await Users.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          team_id: savedTeam._id,
+          team_role: 'manager',
+          year_joining_team: new Date(),
+        },
+      },
+      { new: true },
+    );
+
+    console.log('UPDATED USER:', updatedUser);
 
     res.status(201).json({
       message: 'Nouvelle équipe enregistrée !',
